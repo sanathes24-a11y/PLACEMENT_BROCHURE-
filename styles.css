@@ -2773,3 +2773,262 @@ body {
   100% { transform: scale(1); }
 }
 
+/* ==========================================================================
+   DYNAMIC COMPONENT LOADER STYLES
+   ========================================================================== */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  width: 100%;
+}
+
+.loader-ring {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--card-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.loader-text {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   OUTSTANDING PROJECTS SHOWCASE STYLES
+   ========================================================================== */
+.projects-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 992px) {
+  .projects-showcase-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .projects-showcase-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.project-showcard {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.project-showcard:hover {
+  transform: translateY(-5px);
+  border-color: var(--color-primary);
+  box-shadow: 0 12px 25px -10px rgba(99, 102, 241, 0.2);
+}
+
+.ps-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ps-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.25rem 0.65rem;
+  background: var(--color-primary-glow);
+  color: var(--text-primary);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.project-showcard h4 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.ps-student {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.ps-student i {
+  margin-right: 0.35rem;
+  color: var(--color-primary);
+}
+
+.ps-student-name {
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ps-student-name:hover {
+  color: var(--color-primary);
+}
+
+.ps-divider {
+  height: 1px;
+  background: var(--card-border);
+  margin: auto 0 1rem 0;
+}
+
+.ps-tools {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  background: var(--card-sub-bg);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--card-border);
+}
+
+.ps-tools strong {
+  color: var(--text-primary);
+}
+
+.ps-outcomes {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   HIRING SUITABILITY MATRIX STYLES
+   ========================================================================== */
+.hiring-matrix-container {
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.hiring-matrix-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+}
+
+.hiring-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.92rem;
+}
+
+.hiring-matrix-table th {
+  background: var(--card-sub-bg);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid var(--card-border);
+  white-space: nowrap;
+}
+
+.hiring-matrix-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--card-border);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.hiring-matrix-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.hiring-matrix-table tbody tr:hover {
+  background-color: var(--card-sub-bg);
+}
+
+.hm-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.hm-name:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.hm-program {
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  background: var(--card-sub-bg);
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+}
+
+.hm-cgpa {
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.hm-badge-yes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-success);
+  font-size: 0.8rem;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.hm-badge-no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  border: 1px solid var(--card-border);
+}
+
+/* Image Lazy Loading Skeleton */
+.sc-photo-wrapper.skeleton {
+  background: var(--card-sub-bg);
+  background: linear-gradient(90deg, var(--card-sub-bg) 25%, var(--card-border) 50%, var(--card-sub-bg) 75%);
+  background-size: 200% 100%;
+  animation: loading-skeleton 1.5s infinite;
+}
+
+@keyframes loading-skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+
