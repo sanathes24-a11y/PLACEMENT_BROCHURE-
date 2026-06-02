@@ -40,6 +40,8 @@
       <a href="#overview" class="nav-link">Overview</a>
       <a href="#highlights" class="nav-link">Highlights</a>
       <a href="#profiles" class="nav-link">Gallery</a>
+      <a href="#projects-showcase" class="nav-link">Projects</a>
+      <a href="#hiring-matrix" class="nav-link">Role Matrix</a>
       <a href="#why-recruit" class="nav-link">Why Recruit Us</a>
       <a href="#recruiter-info" class="nav-link">Instructions</a>
       <a href="#registration-section" class="nav-link btn-nav-register">Register</a>
@@ -69,19 +71,19 @@
     <!-- Floating Stats Row -->
     <div class="stats-grid">
       <div class="stat-card card-glass">
-        <div class="stat-num">24</div>
+        <div class="stat-num" id="stat-total-students">0</div>
         <div class="stat-label">Total Students</div>
       </div>
       <div class="stat-card card-glass">
-        <div class="stat-num">8.6</div>
+        <div class="stat-num" id="stat-avg-cgpa">0.00</div>
         <div class="stat-label">Average CGPA</div>
       </div>
       <div class="stat-card card-glass">
-        <div class="stat-num">18+</div>
+        <div class="stat-num" id="stat-total-internships">0</div>
         <div class="stat-label">Industry Internships</div>
       </div>
       <div class="stat-card card-glass">
-        <div class="stat-num">8</div>
+        <div class="stat-num" id="stat-total-publications">0</div>
         <div class="stat-label">Research Publications</div>
       </div>
     </div>
@@ -146,19 +148,19 @@
         <h3>Class Profile (Class of 2026)</h3>
         <div class="bullet-stats">
           <div class="bullet-stat">
-            <span class="bs-value">18</span>
+            <span class="bs-value" id="highlight-internships">0</span>
             <span class="bs-label">Students placed in top semiconductor internships (TI, Intel, Maker Village)</span>
           </div>
           <div class="bullet-stat">
-            <span class="bs-value">32</span>
+            <span class="bs-value" id="highlight-projects">0</span>
             <span class="bs-label">Industry and hardware-oriented VLSI projects completed</span>
           </div>
           <div class="bullet-stat">
-            <span class="bs-value">12</span>
-            <span class="bs-label">Research-oriented projects in neuromorphic computing and AI accelerators</span>
+            <span class="bs-value" id="highlight-leadership">0</span>
+            <span class="bs-label">Leadership roles held in student bodies & tech coordinating groups</span>
           </div>
           <div class="bullet-stat">
-            <span class="bs-value">45+</span>
+            <span class="bs-value" id="highlight-certs">0</span>
             <span class="bs-label">Certifications earned in advanced VLSI toolflows</span>
           </div>
         </div>
@@ -167,31 +169,8 @@
       <!-- Right: Skills Matrix Progress Grid -->
       <div class="skills-matrix card-glass">
         <h3>Technical Skill Distribution</h3>
-        <div class="skills-progress-list">
-          <div class="skill-progress-item">
-            <div class="spi-header"><span>Analog IC Design (Virtuoso)</span><span class="spi-percent">92%</span></div>
-            <div class="spi-bar-track"><div class="spi-bar-fill" style="width: 92%;"></div></div>
-          </div>
-          <div class="skill-progress-item">
-            <div class="spi-header"><span>Verilog RTL Design</span><span class="spi-percent">88%</span></div>
-            <div class="spi-bar-track"><div class="spi-bar-fill" style="width: 88%;"></div></div>
-          </div>
-          <div class="skill-progress-item">
-            <div class="spi-header"><span>Physical Design & STA (Synopsys)</span><span class="spi-percent">78%</span></div>
-            <div class="spi-bar-track"><div class="spi-bar-fill" style="width: 78%;"></div></div>
-          </div>
-          <div class="skill-progress-item">
-            <div class="spi-header"><span>FPGA Prototyping (Vivado)</span><span class="spi-percent">85%</span></div>
-            <div class="spi-bar-track"><div class="spi-bar-fill" style="width: 85%;"></div></div>
-          </div>
-          <div class="skill-progress-item">
-            <div class="spi-header"><span>Neuromorphic Computing / AI HW</span><span class="spi-percent">75%</span></div>
-            <div class="spi-bar-track"><div class="spi-bar-fill" style="width: 75%;"></div></div>
-          </div>
-          <div class="skill-progress-item">
-            <div class="spi-header"><span>Python, C, MATLAB Scripting</span><span class="spi-percent">90%</span></div>
-            <div class="spi-bar-track"><div class="spi-bar-fill" style="width: 90%;"></div></div>
-          </div>
+        <div class="skills-progress-list" id="skills-matrix-progress">
+          <!-- Dynamic Skill bars rendered via JS -->
         </div>
       </div>
     </div>
@@ -204,12 +183,60 @@
       <p class="section-subtitle">Review our class of 2026 students. Click on any profile card to view their full brochure details.</p>
     </div>
     
+    <!-- Loading spinner container -->
+    <div class="loader-container" id="gallery-loader">
+      <div class="loader-ring"></div>
+      <p class="loader-text">Loading verified student profiles...</p>
+    </div>
+    
     <div class="student-gallery-grid" id="student-gallery-grid">
       <!-- Dynamic Student Cards Rendered via JS -->
     </div>
     
     <div class="gallery-note">
       <i class="fa-solid fa-circle-info"></i> Note: Registered students will appear here after verification.
+    </div>
+  </section>
+
+  <!-- Outstanding Projects Showcase Section -->
+  <section class="portal-section" id="projects-showcase">
+    <div class="section-header">
+      <h2 class="section-title"><i class="fa-solid fa-lightbulb"></i> Outstanding Projects Showcase</h2>
+      <p class="section-subtitle">Top innovative hardware design and implementation projects from our students.</p>
+    </div>
+    
+    <div class="projects-showcase-grid" id="projects-showcase-grid">
+      <!-- Dynamic Project Cards Rendered via JS -->
+    </div>
+  </section>
+
+  <!-- Hiring Suitability Matrix Section -->
+  <section class="portal-section" id="hiring-matrix">
+    <div class="section-header">
+      <h2 class="section-title"><i class="fa-solid fa-table-list"></i> Role Suitability Matrix</h2>
+      <p class="section-subtitle">A quick reference grid mapping students to core industry roles based on skills and interests.</p>
+    </div>
+    
+    <div class="hiring-matrix-container card-glass">
+      <div class="hiring-matrix-table-wrapper">
+        <table class="hiring-matrix-table" id="hiring-matrix-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Program</th>
+              <th>CGPA</th>
+              <th>Analog Design</th>
+              <th>RTL & Digital Design</th>
+              <th>Physical Design & STA</th>
+              <th>Embedded Systems</th>
+              <th>AI HW & Neuromorphic</th>
+            </tr>
+          </thead>
+          <tbody id="hiring-matrix-tbody">
+            <!-- Dynamic rows rendered via JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 
