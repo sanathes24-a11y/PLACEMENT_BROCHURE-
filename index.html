@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Placement Brochure 2026 Registration – Electronics & Applied Physics (MSc & M.Tech)</title>
+  <meta name="description" content="Official registration form for the Placement Brochure 2026 – Electronics & Applied Physics (VLSI Specialization). Submit your details, skills, projects, and professional photograph.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Background Decorative Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Top Navigation / Controls Bar -->
+  <header class="app-header">
+    <div class="logo-area">
+      <div class="chip-icon">
+        <i class="fa-solid fa-microchip"></i>
+      </div>
+      <div class="logo-text">
+        <span class="logo-title">VLSI Portal</span>
+        <span class="logo-subtitle">MSc & M.Tech Placements</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button type="button" id="btn-autofill" class="btn btn-secondary-glow" title="Fill form with high-quality VLSI sample data">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Demo Auto-Fill</span>
+      </button>
+      <button type="button" id="theme-toggle" class="btn btn-icon" aria-label="Toggle visual theme" title="Toggle Light/Dark Theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Application Container -->
+  <main class="main-container">
+    
+    <!-- Left Column: Form Wizard -->
+    <section class="wizard-section">
+      <div class="wizard-card card-glass">
+        
+        <!-- Form Header -->
+        <div class="form-header">
+          <h1 id="form-main-title">Placement Brochure 2026 – Electronics & Applied Physics</h1>
+          <p class="form-desc">
+            Please fill carefully. Information will appear in the official placement brochure shared with recruiters. 
+            Upload a professional headshot (formal, plain background). 
+            <span class="deadline-badge"><i class="fa-regular fa-clock"></i> Deadline: June 15, 2026</span>
+          </p>
+        </div>
+
+        <!-- Wizard Progress Tracker -->
+        <div class="progress-container">
+          <div class="progress-bar-track">
+            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div class="steps-indicator">
+            <div class="step-node active" data-step="1">
+              <div class="node-circle"><i class="fa-solid fa-user"></i></div>
+              <span class="node-label">Personal</span>
+            </div>
+            <div class="step-node" data-step="2">
+              <div class="node-circle"><i class="fa-solid fa-graduation-cap"></i></div>
+              <span class="node-label">Academics</span>
+            </div>
+            <div class="step-node" data-step="3">
+              <div class="node-circle"><i class="fa-solid fa-diagram-project"></i></div>
+              <span class="node-label">Projects</span>
+            </div>
+            <div class="step-node" data-step="4">
+              <div class="node-circle"><i class="fa-solid fa-file-signature"></i></div>
+              <span class="node-label">Submit</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTML Form -->
+        <form id="placement-form" novalidate autocomplete="on">
+          
+          <!-- ========================================== -->
+          <!-- STEP 1: PERSONAL DETAILS                   -->
+          <!-- ========================================== -->
+          <div class="form-step active" data-step="1">
+            <h2 class="step-title"><i class="fa-solid fa-id-card"></i> Personal Information</h2>
+            <p class="step-subtitle">Introduce yourself and upload your official headshot.</p>
+            
+            <div class="grid-2">
+              <!-- Full Name -->
+              <div class="form-group" id="group-fullname">
+                <label for="input-fullname" class="required-label">Full Name</label>
+                <div class="input-wrapper">
+                  <i class="fa-regular fa-user input-icon"></i>
+                  <input type="text" id="input-fullname" name="fullname" placeholder="e.g. Aarav Sharma" required>
+                  <span class="validation-badge"><i class="fa-solid fa-circle-check"></i></span>
+                </div>
+                <span class="error-msg">Please enter your full name.</span>
+              </div>
+
+              <!-- Email -->
+              <div class="form-group" id="group-email">
+                <label for="input-email" class="required-label">Email (University Email)</label>
+                <div class="input-wrapper">
+                  <i class="fa-regular fa-envelope input-icon"></i>
+                  <input type="email" id="input-email" name="email" placeholder="e.g. aarav.s@univ.edu" required>
+                  <span class="validation-badge"><i class="fa-solid fa-circle-check"></i></span>
+                </div>
+                <span class="error-msg">Please enter a valid university email address.</span>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <!-- Phone -->
+              <div class="form-group" id="group-phone">
+                <label for="input-phone" class="required-label">Phone (With Country Code)</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-phone input-icon"></i>
+                  <input type="tel" id="input-phone" name="phone" placeholder="e.g. +91-9876543210" required>
+                  <span class="validation-badge"><i class="fa-solid fa-circle-check"></i></span>
+                </div>
+                <small class="help-text">Format: +[Country Code]-[10-digit number], e.g., +91-9876543210</small>
+                <span class="error-msg">Please enter a valid phone number with country code.</span>
+              </div>
+
+              <!-- LinkedIn -->
+              <div class="form-group" id="group-linkedin">
+                <label for="input-linkedin" class="required-label">LinkedIn URL</label>
+                <div class="input-wrapper">
+                  <i class="fa-brands fa-linkedin-in input-icon"></i>
+                  <input type="url" id="input-linkedin" name="linkedin" placeholder="e.g. https://linkedin.com/in/aaravsharma" required>
+                  <span class="validation-badge"><i class="fa-solid fa-circle-check"></i></span>
+                </div>
+                <span class="error-msg">Please enter a valid LinkedIn profile URL.</span>
+              </div>
+            </div>
+
+            <!-- Degree Program Selection -->
+            <div class="form-group" id="group-program">
+              <label class="required-label">Degree Program</label>
+              <div class="checkbox-grid">
+                <label class="checkbox-card">
+                  <input type="radio" name="program" value="MSc Electronics (VLSI Specialization)" checked required>
+                  <span class="checkbox-custom radio-custom"></span>
+                  <span class="checkbox-label">M.Sc. Electronics (VLSI Specialization)</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="radio" name="program" value="MTech Electronics (VLSI Specialization)" required>
+                  <span class="checkbox-custom radio-custom"></span>
+                  <span class="checkbox-label">M.Tech. Electronics (VLSI Specialization)</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="radio" name="program" value="MSc Applied Physics (VLSI Specialization)" required>
+                  <span class="checkbox-custom radio-custom"></span>
+                  <span class="checkbox-label">M.Sc. Applied Physics (VLSI Specialization)</span>
+                </label>
+              </div>
+              <span class="error-msg">Please select your degree program.</span>
+            </div>
+
+            <!-- Photograph Upload -->
+            <div class="form-group" id="group-photo">
+              <label class="required-label">Upload Professional Photograph</label>
+              <div class="upload-zone" id="upload-zone">
+                <input type="file" id="input-photo" name="photo" accept="image/png, image/jpeg" class="file-input-hidden" required>
+                <div class="upload-content" id="upload-content-empty">
+                  <i class="fa-regular fa-image upload-icon"></i>
+                  <p class="upload-main-text">Drag & drop your photograph here, or <span class="upload-browse">browse</span></p>
+                  <p class="upload-sub-text">PNG, JPG or JPEG up to 5MB (Passport-style, plain background, formal attire)</p>
+                </div>
+                <div class="upload-preview-container hidden" id="upload-preview-container">
+                  <img id="upload-img-preview" src="" alt="Professional Photograph Preview">
+                  <div class="upload-preview-details">
+                    <span id="upload-file-name" class="file-name">headshot.png</span>
+                    <span id="upload-file-size" class="file-size">1.2 MB</span>
+                    <button type="button" id="btn-remove-photo" class="btn btn-sm btn-danger-glow"><i class="fa-regular fa-trash-can"></i> Remove</button>
+                  </div>
+                </div>
+              </div>
+              <span class="error-msg" id="photo-error-msg">A professional photograph is required.</span>
+            </div>
+
+          </div>
+
+          <!-- ========================================== -->
+          <!-- STEP 2: ACADEMICS & SKILLS                 -->
+          <!-- ========================================== -->
+          <div class="form-step" data-step="2">
+            <h2 class="step-title"><i class="fa-solid fa-brain"></i> Education & Technical Skills</h2>
+            <p class="step-subtitle">Provide your academic status and VLSI technical domains.</p>
+            
+            <div class="grid-2">
+              <!-- Current CGPA -->
+              <div class="form-group" id="group-cgpa">
+                <label for="input-cgpa" class="required-label">Current CGPA (out of 10)</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-chart-line input-icon"></i>
+                  <input type="number" id="input-cgpa" name="cgpa" placeholder="e.g. 8.75" step="0.01" min="0" max="10" required>
+                  <span class="validation-badge"><i class="fa-solid fa-circle-check"></i></span>
+                </div>
+                <span class="error-msg">Please enter a valid CGPA between 0.00 and 10.00.</span>
+              </div>
+            </div>
+
+            <!-- Key Technical Skills -->
+            <div class="form-group" id="group-skills">
+              <label class="required-label">Key Technical Skills <span class="badge-required">Select all that apply</span></label>
+              <div class="checkbox-grid" id="skills-checkbox-grid">
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="Analog IC Design">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Analog IC Design</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="Cadence Virtuoso">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Cadence Virtuoso</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="Custom Layout / DRC/LVS">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Custom Layout / DRC/LVS</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="Verilog RTL Design">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Verilog RTL Design</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="FPGA (Xilinx/Intel)">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">FPGA (Xilinx/Intel)</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="Physical Design / STA">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Physical Design / STA</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="Embedded Systems (STM32, Arduino)">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Embedded Systems (STM32, Arduino)</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="Python / C / MATLAB">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Python / C / MATLAB</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="LTspice / Ngspice">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">LTspice / Ngspice</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="Machine Learning / AI Hardware">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Machine Learning / AI Hardware</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="skills" value="Neuromorphic Computing">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Neuromorphic Computing</span>
+                </label>
+                <label class="checkbox-card" id="checkbox-skills-other">
+                  <input type="checkbox" name="skills" value="Other" id="skill-other-toggle">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Other (specify below)</span>
+                </label>
+              </div>
+              
+              <!-- Conditional Skills Text Input -->
+              <div class="conditional-input-field hidden" id="group-skills-other-text">
+                <input type="text" id="input-skills-other-text" name="skills_other_text" placeholder="Specify other technical skills (comma separated)">
+              </div>
+              <span class="error-msg">Please select at least one technical skill.</span>
+            </div>
+
+            <!-- Areas of Interest -->
+            <div class="form-group" id="group-interests">
+              <label class="required-label">Areas of Interest <span class="badge-required">Select up to 3 options</span></label>
+              <div class="checkbox-grid" id="interests-checkbox-grid">
+                <label class="checkbox-card">
+                  <input type="checkbox" name="interests" value="Analog Design">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Analog Design</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="interests" value="Custom Layout">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Custom Layout</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="interests" value="RTL Design">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">RTL Design</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="interests" value="Verification">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Verification</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="interests" value="Physical Design">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Physical Design</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="interests" value="Embedded Systems">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Embedded Systems</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="interests" value="AI Hardware">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">AI Hardware</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="interests" value="Neuromorphic Computing">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Neuromorphic Computing</span>
+                </label>
+                <label class="checkbox-card">
+                  <input type="checkbox" name="interests" value="Research & Development">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Research & Development</span>
+                </label>
+                <label class="checkbox-card" id="checkbox-interests-other">
+                  <input type="checkbox" name="interests" value="Others" id="interest-other-toggle">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Others (specify below)</span>
+                </label>
+              </div>
+              
+              <!-- Conditional Interests Text Input -->
+              <div class="conditional-input-field hidden" id="group-interests-other-text">
+                <input type="text" id="input-interests-other-text" name="interests_other_text" placeholder="Specify other areas of interest (comma separated)">
+              </div>
+              <span class="error-msg" id="interests-error-msg">Please select 1 to 3 areas of interest.</span>
+            </div>
+
+          </div>
+
+          <!-- ========================================== -->
+          <!-- STEP 3: PROJECTS                           -->
+          <!-- ========================================== -->
+          <div class="form-step" data-step="3">
+            <h2 class="step-title"><i class="fa-solid fa-code-fork"></i> Projects</h2>
+            <p class="step-subtitle">Details about your academic/research projects (Project 1 is required).</p>
+
+            <!-- Project 1 (Required) -->
+            <div class="project-block card-subglass">
+              <h3 class="block-title"><span class="badge-number">1</span> Project 1 (Primary)</h3>
+              
+              <div class="grid-2">
+                <!-- Project 1 Title -->
+                <div class="form-group" id="group-p1title">
+                  <label for="input-p1title" class="required-label">Project 1 – Title</label>
+                  <div class="input-wrapper">
+                    <i class="fa-regular fa-folder-open input-icon"></i>
+                    <input type="text" id="input-p1title" name="p1title" placeholder="e.g. Design of high-speed SAR ADC" required>
+                    <span class="validation-badge"><i class="fa-solid fa-circle-check"></i></span>
+                  </div>
+                  <span class="error-msg">Project 1 title is required.</span>
+                </div>
+
+                <!-- Project 1 Domain -->
+                <div class="form-group" id="group-p1domain">
+                  <label for="select-p1domain" class="required-label">Project 1 – Domain</label>
+                  <div class="select-wrapper">
+                    <i class="fa-solid fa-microchip select-icon"></i>
+                    <select id="select-p1domain" name="p1domain" required>
+                      <option value="" disabled selected>Select a domain</option>
+                      <option value="Analog IC Design">Analog IC Design</option>
+                      <option value="Digital IC Design">Digital IC Design</option>
+                      <option value="Embedded Systems">Embedded Systems</option>
+                      <option value="Machine Learning / AI Hardware">Machine Learning / AI Hardware</option>
+                      <option value="Research / Emerging Tech">Research / Emerging Tech</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-arrow"></i>
+                  </div>
+                  <span class="error-msg">Please select Project 1 domain.</span>
+                </div>
+              </div>
+
+              <!-- Project 1 Tools -->
+              <div class="form-group" id="group-p1tools">
+                <label for="input-p1tools" class="required-label">Project 1 – Tools/Technologies</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-wrench input-icon"></i>
+                  <input type="text" id="input-p1tools" name="p1tools" placeholder="e.g. 180nm CMOS, Cadence Virtuoso, Spectre" required>
+                  <span class="validation-badge"><i class="fa-solid fa-circle-check"></i></span>
+                </div>
+                <span class="error-msg">Please specify tools and technologies.</span>
+              </div>
+
+              <!-- Project 1 Outcomes -->
+              <div class="form-group" id="group-p1outcomes">
+                <label for="textarea-p1outcomes" class="required-label">Project 1 – Key contribution & outcomes (with metrics)</label>
+                <div class="textarea-wrapper">
+                  <i class="fa-solid fa-list-check input-icon-textarea"></i>
+                  <textarea id="textarea-p1outcomes" name="p1outcomes" rows="3" placeholder="e.g. Designed two-stage Op-Amp, gain=78dB, power=450µW, phase margin=62 degrees" required></textarea>
+                </div>
+                <span class="error-msg">Please describe your contribution and outcomes with metrics.</span>
+              </div>
+            </div>
+
+            <!-- Project 2 (Optional) -->
+            <div class="project-block card-subglass margin-top-lg">
+              <h3 class="block-title"><span class="badge-number">2</span> Project 2 (Optional)</h3>
+              
+              <div class="grid-2">
+                <!-- Project 2 Title -->
+                <div class="form-group" id="group-p2title">
+                  <label for="input-p2title">Project 2 – Title</label>
+                  <div class="input-wrapper">
+                    <i class="fa-regular fa-folder-open input-icon"></i>
+                    <input type="text" id="input-p2title" name="p2title" placeholder="e.g. FPGA implementation of Cryptographic Core">
+                  </div>
+                </div>
+
+                <!-- Project 2 Domain -->
+                <div class="form-group" id="group-p2domain">
+                  <label for="select-p2domain">Project 2 – Domain</label>
+                  <div class="select-wrapper">
+                    <i class="fa-solid fa-microchip select-icon"></i>
+                    <select id="select-p2domain" name="p2domain">
+                      <option value="" selected>Select a domain (optional)</option>
+                      <option value="Analog IC Design">Analog IC Design</option>
+                      <option value="Digital IC Design">Digital IC Design</option>
+                      <option value="Embedded Systems">Embedded Systems</option>
+                      <option value="Machine Learning / AI Hardware">Machine Learning / AI Hardware</option>
+                      <option value="Research / Emerging Tech">Research / Emerging Tech</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-arrow"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Project 2 Tools -->
+              <div class="form-group" id="group-p2tools">
+                <label for="input-p2tools">Project 2 – Tools/Technologies</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-wrench input-icon"></i>
+                  <input type="text" id="input-p2tools" name="p2tools" placeholder="e.g. Xilinx Vivado, Verilog, Basys 3 FPGA">
+                </div>
+              </div>
+
+              <!-- Project 2 Outcomes -->
+              <div class="form-group" id="group-p2outcomes">
+                <label for="textarea-p2outcomes">Project 2 – Key contribution & outcomes</label>
+                <div class="textarea-wrapper">
+                  <i class="fa-solid fa-list-check input-icon-textarea"></i>
+                  <textarea id="textarea-p2outcomes" name="p2outcomes" rows="3" placeholder="e.g. Designed and verified HMAC core, achieved 250 MHz clock speed, verified on FPGA hardware"></textarea>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ========================================== -->
+          <!-- STEP 4: INTERNSHIPS & PUBLICATIONS         -->
+          <!-- ========================================== -->
+          <div class="form-step" data-step="4">
+            <h2 class="step-title"><i class="fa-solid fa-award"></i> Professional Profile & Certifications</h2>
+            <p class="step-subtitle">List professional experiences, publications, and leadership credentials.</p>
+
+            <!-- Internship Details Block -->
+            <div class="project-block card-subglass">
+              <h3 class="block-title"><i class="fa-solid fa-building"></i> Industry Internship (Optional)</h3>
+              
+              <div class="grid-2">
+                <!-- Internship Company -->
+                <div class="form-group" id="group-interncompany">
+                  <label for="input-interncompany">Internship – Company</label>
+                  <div class="input-wrapper">
+                    <i class="fa-regular fa-building input-icon"></i>
+                    <input type="text" id="input-interncompany" name="interncompany" placeholder="e.g. Intel Corporation (leave blank if none)">
+                  </div>
+                  <small class="help-text">Leave blank if none</small>
+                </div>
+
+                <!-- Internship Duration (Conditional) -->
+                <div class="form-group" id="group-internduration">
+                  <label for="input-internduration" id="label-internduration">Internship – Duration</label>
+                  <div class="input-wrapper">
+                    <i class="fa-regular fa-calendar input-icon"></i>
+                    <input type="text" id="input-internduration" name="internduration" placeholder="e.g. 3 months (Summer 2025)" disabled>
+                  </div>
+                  <small class="help-text" id="help-internduration">Disabled. Please enter a company name first.</small>
+                  <span class="error-msg" id="error-internduration">Duration is required since Company is filled.</span>
+                </div>
+              </div>
+
+              <!-- Internship Key Work -->
+              <div class="form-group" id="group-internwork">
+                <label for="textarea-internwork" id="label-internwork">Internship – Key work (1-2 lines)</label>
+                <div class="textarea-wrapper">
+                  <i class="fa-solid fa-laptop-code input-icon-textarea"></i>
+                  <textarea id="textarea-internwork" name="internwork" rows="2" placeholder="e.g. Modeled digital controller logic in Verilog and simulated thermal noise responses." disabled></textarea>
+                </div>
+                <span class="error-msg" id="error-internwork">Key work description is required since Company is filled.</span>
+              </div>
+            </div>
+
+            <!-- Certifications, Publications & Extra-Curriculars -->
+            <div class="margin-top-lg">
+              <div class="grid-2">
+                <!-- Certifications -->
+                <div class="form-group" id="group-certs">
+                  <label for="textarea-certs">Certifications (list up to 3)</label>
+                  <div class="textarea-wrapper">
+                    <i class="fa-solid fa-certificate input-icon-textarea"></i>
+                    <textarea id="textarea-certs" name="certs" rows="3" placeholder="e.g. Cadence VLSI Fundamentals (2025), NPTEL Analog IC Design (2025)"></textarea>
+                  </div>
+                </div>
+
+                <!-- Publications -->
+                <div class="form-group" id="group-pubs">
+                  <label for="input-pubs">Publications (Maximum 1)</label>
+                  <div class="textarea-wrapper">
+                    <i class="fa-solid fa-scroll input-icon-textarea"></i>
+                    <textarea id="input-pubs" name="pubs" rows="3" placeholder='e.g. "Low-Power OTA for Biomedical Sensors" – IEEE TENCON 2025, or "None"'></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Leadership / Responsibilities -->
+              <div class="form-group margin-top-md" id="group-leadership">
+                <label>Leadership / Responsibilities <span class="badge-optional">Optional</span></label>
+                <div class="checkbox-grid" id="leadership-checkbox-grid">
+                  <label class="checkbox-card">
+                    <input type="checkbox" name="leadership" value="Class Representative">
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">Class Representative</span>
+                  </label>
+                  <label class="checkbox-card">
+                    <input type="checkbox" name="leadership" value="IEEE Student Body Office Bearer">
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">IEEE Student Body Office Bearer</span>
+                  </label>
+                  <label class="checkbox-card">
+                    <input type="checkbox" name="leadership" value="Placement Committee Member">
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">Placement Committee Member</span>
+                  </label>
+                  <label class="checkbox-card">
+                    <input type="checkbox" name="leadership" value="Technical Club Coordinator">
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">Technical Club Coordinator</span>
+                  </label>
+                  <label class="checkbox-card">
+                    <input type="checkbox" name="leadership" value="Event Organizer">
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">Event Organizer</span>
+                  </label>
+                  <label class="checkbox-card" id="checkbox-leadership-other">
+                    <input type="checkbox" name="leadership" value="Other" id="leadership-other-toggle">
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">Other (specify below)</span>
+                  </label>
+                </div>
+
+                <!-- Conditional Leadership Text Input -->
+                <div class="conditional-input-field hidden" id="group-leadership-other-text">
+                  <input type="text" id="input-leadership-other-text" name="leadership_other_text" placeholder="Specify other leadership position">
+                </div>
+              </div>
+            </div>
+
+            <!-- Career Objective -->
+            <div class="form-group margin-top-lg" id="group-objective">
+              <div class="label-with-counter">
+                <label for="textarea-objective" class="required-label">Career Objective (1-2 lines)</label>
+                <span class="char-counter" id="objective-counter">0 / 250 characters</span>
+              </div>
+              <div class="textarea-wrapper">
+                <i class="fa-regular fa-compass input-icon-textarea"></i>
+                <textarea id="textarea-objective" name="objective" rows="3" maxlength="250" placeholder="Seeking role in analog/mixed-signal IC design for low-power IoT applications. (Max 250 characters)" required></textarea>
+              </div>
+              <span class="error-msg">Please write a career objective (maximum 250 characters).</span>
+            </div>
+
+          </div>
+
+          <!-- Wizard Footer Actions -->
+          <div class="wizard-footer">
+            <button type="button" id="btn-prev" class="btn btn-secondary hidden">
+              <i class="fa-solid fa-arrow-left"></i> Previous
+            </button>
+            <div class="footer-right">
+              <span id="draft-save-indicator" class="draft-indicator"><i class="fa-solid fa-cloud-arrow-up"></i> Draft saved</span>
+              <button type="button" id="btn-next" class="btn btn-primary">
+                Next <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </section>
+
+    <!-- Right Column: Real-time Placement Brochure Preview -->
+    <aside class="preview-section" id="preview-section">
+      
+      <!-- Preview Header & Collapse Toggle for mobile -->
+      <div class="preview-header">
+        <h2 class="preview-title"><i class="fa-solid fa-circle-nodes"></i> Brochure Preview (Real-time)</h2>
+        <button type="button" id="preview-toggle" class="btn btn-xs btn-outline" aria-label="Toggle full page preview mode" title="Maximize brochure card">
+          <i class="fa-solid fa-expand"></i> <span>Maximize</span>
+        </button>
+      </div>
+
+      <div class="brochure-card-outer">
+        <div class="brochure-card" id="brochure-card-render">
+          
+          <!-- Brochure Card Header -->
+          <div class="bc-header">
+            <div class="bc-univ-logo">
+              <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div class="bc-title-block">
+              <h3 id="preview-program">MSc Electronics (VLSI Specialization)</h3>
+              <p>PLACEMENT PORTFOLIO • CLASS OF 2026</p>
+            </div>
+            <div class="bc-cgpa-pill">
+              <span class="bc-cgpa-label">CGPA</span>
+              <span class="bc-cgpa-val" id="preview-cgpa">--</span>
+            </div>
+          </div>
+
+          <!-- Profile Main Details Row -->
+          <div class="bc-profile-row">
+            <!-- Left: Photo Frame -->
+            <div class="bc-photo-container">
+              <img id="preview-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a2035'/><path d='M50 45a12 12 0 1 0 0-24 12 12 0 0 0 0 24zm0 8c-18 0-30 8-30 18v3h60v-3c0-10-12-18-30-18z' fill='%234a5568'/></svg>" alt="Candidate Headshot">
+            </div>
+            <!-- Right: Personal Bio -->
+            <div class="bc-bio-details">
+              <h2 id="preview-name" class="bc-name">Student Name</h2>
+              
+              <div class="bc-contact-grid">
+                <span class="bc-contact-item" id="preview-email-item">
+                  <i class="fa-regular fa-envelope"></i> <span id="preview-email">email@university.edu</span>
+                </span>
+                <span class="bc-contact-item" id="preview-phone-item">
+                  <i class="fa-solid fa-phone"></i> <span id="preview-phone">+91-XXXXXXXXXX</span>
+                </span>
+                <a href="#" target="_blank" class="bc-contact-item bc-link" id="preview-linkedin-item">
+                  <i class="fa-brands fa-linkedin"></i> <span id="preview-linkedin">linkedin.com/in/username</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="bc-divider"></div>
+
+          <!-- Objective Statement -->
+          <div class="bc-section" id="bc-sec-objective">
+            <h4 class="bc-sec-title">Career Objective</h4>
+            <p class="bc-objective-text" id="preview-objective">
+              Seeking an exciting opportunity to apply VLSI designing concepts and digital architecture skills in semiconductor design and development...
+            </p>
+          </div>
+
+          <!-- Skills and Interests -->
+          <div class="bc-skills-interests-row">
+            <div class="bc-sec-column">
+              <h4 class="bc-sec-title">Technical Skills</h4>
+              <div class="bc-tags" id="preview-skills">
+                <span class="tag-placeholder">No skills selected</span>
+              </div>
+            </div>
+            <div class="bc-sec-column">
+              <h4 class="bc-sec-title">Areas of Interest</h4>
+              <div class="bc-tags" id="preview-interests">
+                <span class="tag-placeholder">No interests selected</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Projects Section -->
+          <div class="bc-section" id="bc-sec-projects">
+            <h4 class="bc-sec-title">Projects</h4>
+            
+            <div class="bc-project" id="preview-p1">
+              <div class="bc-proj-header">
+                <h5 class="bc-proj-title" id="preview-p1title">Project 1: System Title</h5>
+                <span class="bc-badge" id="preview-p1domain">Domain</span>
+              </div>
+              <p class="bc-proj-tools"><strong>Tools/Tech:</strong> <span id="preview-p1tools">Spectre, Cadence</span></p>
+              <p class="bc-proj-desc" id="preview-p1outcomes">Project description and metrics will show here.</p>
+            </div>
+
+            <div class="bc-project hidden" id="preview-p2">
+              <div class="bc-proj-header">
+                <h5 class="bc-proj-title" id="preview-p2title">Project 2: System Title</h5>
+                <span class="bc-badge" id="preview-p2domain">Domain</span>
+              </div>
+              <p class="bc-proj-tools"><strong>Tools/Tech:</strong> <span id="preview-p2tools">Verilog, Vivado</span></p>
+              <p class="bc-proj-desc" id="preview-p2outcomes">Project description and outcomes.</p>
+            </div>
+          </div>
+
+          <!-- Internships & Achievements Grid -->
+          <div class="bc-grid-2" id="bc-sec-extra">
+            <!-- Internship Column -->
+            <div class="bc-sec-column hidden" id="preview-internship-col">
+              <h4 class="bc-sec-title">Professional Experience</h4>
+              <div class="bc-internship">
+                <h5 class="bc-intern-company" id="preview-interncompany">Intel Corporation</h5>
+                <span class="bc-intern-duration" id="preview-internduration">3 Months</span>
+                <p class="bc-intern-work" id="preview-internwork">Internship details.</p>
+              </div>
+            </div>
+            <!-- Certifications & Publications Column -->
+            <div class="bc-sec-column hidden" id="preview-certs-pubs-col">
+              <h4 class="bc-sec-title">Certifications & Publications</h4>
+              <div class="bc-certs-pubs">
+                <ul class="bc-bullet-list">
+                  <li id="preview-certs-li" class="hidden"><strong>Certifications:</strong> <span id="preview-certs">List of certifications.</span></li>
+                  <li id="preview-pubs-li" class="hidden"><strong>Publications:</strong> <span id="preview-pubs">List of publications.</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leadership & Extracurriculars -->
+          <div class="bc-section hidden" id="preview-leadership-sec">
+            <h4 class="bc-sec-title">Leadership & Positions of Responsibility</h4>
+            <div class="bc-tags bc-tags-secondary" id="preview-leadership">
+              <!-- Leadership items -->
+            </div>
+          </div>
+
+          <!-- Verified Status Footer -->
+          <div class="bc-footer">
+            <div class="bc-verified" style="margin-left: auto;">
+              <i class="fa-solid fa-circle-check"></i> Verified Candidate
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+    </aside>
+
+  </main>
+
+  <!-- Submission Success Modal -->
+  <div class="modal-overlay hidden" id="success-modal">
+    <div class="modal-content card-glass anim-bounce">
+      <div class="modal-badge-success">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h2 class="modal-title">Response Submitted Successfully!</h2>
+      <p class="modal-subtitle">Your details have been recorded and saved for the official Placement Brochure 2026.</p>
+      
+      <div class="modal-actions-container">
+        <div class="actions-heading">BROCHURE OPTIONS</div>
+        <div class="modal-actions">
+          <button type="button" id="btn-print" class="btn btn-primary-glow">
+            <i class="fa-solid fa-file-pdf"></i> Download Resume Card (PDF)
+          </button>
+          <button type="button" id="btn-download-png" class="btn btn-primary-glow" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%); border: none;">
+            <i class="fa-solid fa-file-image"></i> Download Resume Card (PNG Image)
+          </button>
+          <button type="button" id="btn-export-json" class="btn btn-secondary">
+            <i class="fa-solid fa-file-code"></i> Export JSON Data
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-separator"></div>
+
+      <div class="modal-actions-alt">
+        <button type="button" id="btn-edit-response" class="btn btn-outline-danger">
+          <i class="fa-solid fa-edit"></i> Edit Your Response
+        </button>
+        <button type="button" id="btn-reset-form" class="btn btn-outline">
+          <i class="fa-solid fa-rotate-left"></i> Submit Another Response
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- html2canvas Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
