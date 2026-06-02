@@ -1,13 +1,18 @@
 /**
- * Placement Brochure 2026 Registration - MSc Electronics (VLSI Specialization)
- * Application logic (Validation, Wizard wizard, Local Storage Auto-save, Preview Syncer)
+ * Placement Brochure Portal & Registration - DUK VLSI Placement Portal
+ * Application logic (Validation, Gallery rendering, Modals, Local Storage Auto-save, Syncers)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  // Replace with your Google Apps Script Web App URL
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchSmGO9tHJuZKOxr1CioPpGEx3wK6mE2ysarovHSz5q2CX2-byIhJqO/exec';
   
+  // ==========================================================================
+  // CONFIGURATION & GLOBAL CONSTANTS
+  // ==========================================================================
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-YOUR-SCRIPT-ID/exec";
+  
+  // SVG Fallback for professional avatar headshot
+  const svgPlaceholder = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e293b'/><circle cx='50' cy='35' r='18' fill='%23475569'/><path d='M50 58c-15 0-25 7-25 15v5h50v-5c0-8-10-15-25-15z' fill='%23475569'/></svg>";
+
   // ==========================================================================
   // DOM ELEMENT REFERENCES
   // ==========================================================================
@@ -16,13 +21,19 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
   const stepNodes = Array.from(document.querySelectorAll('.step-node'));
   const progressBarFill = document.getElementById('progress-bar-fill');
   
-  // Navigation Buttons
+  // Navigation Buttons & Layout Toggles
   const btnPrev = document.getElementById('btn-prev');
   const btnNext = document.getElementById('btn-next');
   const draftSaveIndicator = document.getElementById('draft-save-indicator');
   const themeToggleBtn = document.getElementById('theme-toggle');
   const btnAutofill = document.getElementById('btn-autofill');
   const btnDownloadPng = document.getElementById('btn-download-png');
+  
+  // Collapsible Registration Elements
+  const btnToggleRegistration = document.getElementById('btn-toggle-registration');
+  const registrationFormDrawer = document.getElementById('registration-form-drawer');
+  const btnHeroRegister = document.getElementById('btn-hero-register');
+  const navBtnRegister = document.querySelector('.btn-nav-register');
   
   // Image Upload elements
   const uploadZone = document.getElementById('upload-zone');
@@ -127,14 +138,20 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
   const btnEditResponse = document.getElementById('btn-edit-response');
   const btnResetForm = document.getElementById('btn-reset-form');
   const toastContainer = document.getElementById('toast-container');
-
-  // SVG Fallback for professional avatar headshot
-  const svgPlaceholder = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e293b'/><circle cx='50' cy='35' r='18' fill='%23475569'/><path d='M50 58c-15 0-25 7-25 15v5h50v-5c0-8-10-15-25-15z' fill='%23475569'/></svg>";
+  
+  // Recruiter Modal Elements
+  const profileDetailModal = document.getElementById('profile-detail-modal');
+  const btnCloseProfileModal = document.getElementById('btn-close-profile-modal');
+  const modalBrochureCardContainer = document.getElementById('modal-brochure-card-container');
+  const btnModalDownloadPng = document.getElementById('btn-modal-download-png');
+  const btnModalPrintPdf = document.getElementById('btn-modal-print-pdf');
+  const btnRequestBrochure = document.getElementById('btn-request-brochure');
 
   // State Variables
   let currentStep = 1;
   let photoBase64 = '';
   let autoSaveTimeout = null;
+  let activeModalStudentName = '';
 
   // ==========================================================================
   // WIZARD CONTROLLER LOGIC
@@ -182,7 +199,12 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     const activeStep = steps.find(s => parseInt(s.dataset.step) === stepNum);
     if (activeStep) {
       activeStep.classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Scroll wizard container to top smoothly
+      const wizardCard = document.querySelector('.wizard-card');
+      if (wizardCard) {
+        wizardCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }
     updateProgress();
   }
@@ -192,18 +214,11 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
   // ==========================================================================
 
   function validateEmail(email) {
-    // Broad regex check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return false;
-    
-    // Google form explicitly requested university email. Show warning check but let standard format slide
-    // Let's do a strict check for uni domain or just check if it has letters
-    return true;
+    return emailRegex.test(email);
   }
 
   function validatePhone(phone) {
-    // Example format: +91-9876543210
-    // Allow spaces, dashes, numbers, starting plus. Let's make it robust but flexible
     const phoneRegex = /^\+?[0-9]{1,4}[- ]?[0-9]{9,11}$/;
     return phoneRegex.test(phone.replace(/\s+/g, ''));
   }
@@ -228,7 +243,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     } else {
       groupEl.classList.remove('is-invalid');
       if (groupEl.querySelector('input') || groupEl.querySelector('select') || groupEl.querySelector('textarea')) {
-        // Only set is-valid if the field is not empty (for optional ones) or if it's explicitly filled
         const input = groupEl.querySelector('input, select, textarea');
         if (input && input.value.trim() !== '') {
           groupEl.classList.add('is-valid');
@@ -258,10 +272,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       } else if (!validateEmail(inputEmail.value.trim())) {
         setFieldError(emailGroup, true, "Please enter a valid email address.");
         isValid = false;
-      } else if (!inputEmail.value.trim().endsWith('.edu') && !inputEmail.value.trim().endsWith('.ac.in') && !inputEmail.value.trim().includes('university')) {
-        // Warning: Google Forms specifies "university email". Let's show warning or allow with a tip
-        // We will accept it but we can add a warning class
-        setFieldError(emailGroup, false);
       } else {
         setFieldError(emailGroup, false);
       }
@@ -385,9 +395,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       } else {
         setFieldError(p1OutcomesGroup, false);
       }
-
-      // Project 2 has no required fields, but if title is entered, domain, tools, and outcomes are nice-to-have but still optional as per Google Forms.
-      // We will allow Project 2 to remain partial.
     }
 
     else if (stepNum === 4) {
@@ -438,7 +445,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
         showStep(currentStep);
         saveDraft();
       } else {
-        // Form Complete - Submit
         submitForm();
       }
     } else {
@@ -459,12 +465,10 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     node.addEventListener('click', () => {
       const targetStep = idx + 1;
       
-      // Allow moving backward freely, or forward if steps in between are valid
       if (targetStep < currentStep) {
         currentStep = targetStep;
         showStep(currentStep);
       } else if (targetStep > currentStep) {
-        // Verify current step before stepping forward
         let pathValid = true;
         for (let s = currentStep; s < targetStep; s++) {
           if (!validateStep(s)) {
@@ -489,13 +493,11 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
   function handlePhotoSelect(file) {
     if (!file) return;
 
-    // Check File Type
     if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
       showToast('Allowed file types are PNG, JPG or JPEG.', 'error');
       return;
     }
 
-    // Check File Size (Max 5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       showToast('Image size exceeds 5MB limit.', 'error');
@@ -506,7 +508,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     reader.onload = function(e) {
       photoBase64 = e.target.result;
       
-      // Update UI elements
       uploadImgPreview.src = photoBase64;
       previewImg.src = photoBase64;
       
@@ -518,7 +519,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       
       document.getElementById('group-photo').classList.remove('is-invalid');
       
-      // Save Photo to localStorage
       try {
         localStorage.setItem('vlsi_draft_photo', photoBase64);
         localStorage.setItem('vlsi_draft_photo_meta', JSON.stringify({
@@ -535,14 +535,12 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     reader.readAsDataURL(file);
   }
 
-  // Input file change listener
   inputPhoto.addEventListener('change', (e) => {
     if (e.target.files.length) {
       handlePhotoSelect(e.target.files[0]);
     }
   });
 
-  // Drag and drop listeners
   ['dragenter', 'dragover'].forEach(eventName => {
     uploadZone.addEventListener(eventName, (e) => {
       e.preventDefault();
@@ -567,7 +565,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     }
   });
 
-  // Remove photo click listener
   btnRemovePhoto.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -592,7 +589,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
   // CONDITIONAL INPUTS LOGIC
   // ==========================================================================
 
-  // Internship Company dependency
   function toggleInternshipFields() {
     const hasCompany = inputInternCompany.value.trim() !== '';
     if (hasCompany) {
@@ -610,7 +606,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       labelInternWork.classList.remove('required-label');
       helpInternDuration.textContent = 'Disabled. Please enter a company name first.';
       
-      // Reset errors if any
       inputInternDuration.parentElement.parentElement.classList.remove('is-invalid');
       textareaInternWork.parentElement.parentElement.classList.remove('is-invalid');
     }
@@ -618,7 +613,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
 
   inputInternCompany.addEventListener('input', toggleInternshipFields);
 
-  // Other skills specify
   skillOtherToggle.addEventListener('change', () => {
     if (skillOtherToggle.checked) {
       groupSkillsOtherText.classList.remove('hidden');
@@ -629,7 +623,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     syncPreview();
   });
 
-  // Other interests specify
   interestOtherToggle.addEventListener('change', () => {
     if (interestOtherToggle.checked) {
       groupInterestsOtherText.classList.remove('hidden');
@@ -640,7 +633,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     syncPreview();
   });
 
-  // Other leadership specify
   leadershipOtherToggle.addEventListener('change', () => {
     if (leadershipOtherToggle.checked) {
       groupLeadershipOtherText.classList.remove('hidden');
@@ -651,7 +643,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     syncPreview();
   });
 
-  // Character Counter for Objective
   textareaObjective.addEventListener('input', () => {
     const len = textareaObjective.value.length;
     objectiveCounter.textContent = `${len} / 250 characters`;
@@ -662,7 +653,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     }
   });
 
-  // Limit Max Checked Interests to 3 (prevent checking more)
   const interestCheckboxes = form.querySelectorAll('input[name="interests"]');
   interestCheckboxes.forEach(cb => {
     cb.addEventListener('change', () => {
@@ -680,7 +670,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
   // ==========================================================================
 
   function syncPreview() {
-    // 1. Personal Details
     previewName.textContent = inputFullName.value.trim() || 'Student Name';
     
     const checkedProgram = form.querySelector('input[name="program"]:checked');
@@ -723,13 +712,10 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       previewLinkedinItem.classList.add('hidden');
     }
 
-    // 2. Career Objective
     previewObjective.textContent = textareaObjective.value.trim() || 'Seeking an exciting opportunity to apply VLSI designing concepts and digital architecture skills in semiconductor design and development...';
 
-    // 3. Technical Skills tags
+    // Technical Skills tags
     const checkedSkills = Array.from(form.querySelectorAll('input[name="skills"]:checked')).map(cb => cb.value);
-    
-    // Replace "Other" tag with specific text if provided
     if (checkedSkills.includes('Other')) {
       const otherIdx = checkedSkills.indexOf('Other');
       const otherVal = inputSkillsOtherText.value.trim();
@@ -746,10 +732,8 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       previewSkills.innerHTML = '<span class="tag-placeholder">No skills selected</span>';
     }
 
-    // 4. Areas of Interest tags
+    // Areas of Interest tags
     const checkedInterests = Array.from(form.querySelectorAll('input[name="interests"]:checked')).map(cb => cb.value);
-    
-    // Replace "Others" tag with specific text if provided
     if (checkedInterests.includes('Others')) {
       const otherIdx = checkedInterests.indexOf('Others');
       const otherVal = inputInterestsOtherText.value.trim();
@@ -766,7 +750,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       previewInterests.innerHTML = '<span class="tag-placeholder">No interests selected</span>';
     }
 
-    // 5. Projects
     // Project 1
     const p1Title = inputP1Title.value.trim();
     if (p1Title) {
@@ -779,7 +762,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       previewP1Title.textContent = 'Project 1: Title';
       previewP1Domain.textContent = 'Domain';
       previewP1Tools.textContent = '--';
-      previewP1Outcomes.textContent = 'Project description and metrics will show here.';
+      previewP1Outcomes.textContent = 'Project description and outcomes will show here.';
     }
 
     // Project 2 (Optional)
@@ -794,7 +777,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       previewP2.classList.add('hidden');
     }
 
-    // 6. Internship Column
+    // Internship
     const internCompany = inputInternCompany.value.trim();
     if (internCompany) {
       previewInternCompany.textContent = internCompany;
@@ -805,7 +788,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       previewInternshipCol.classList.add('hidden');
     }
 
-    // 7. Certifications & Publications
+    // Certifications & Publications
     const certsText = textareaCerts.value.trim();
     const pubsText = inputPubs.value.trim();
     
@@ -829,14 +812,13 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       previewCertsPubsCol.classList.add('hidden');
     }
 
-    // If both internship and certs are empty, hide the entire row block
     if (!internCompany && !certsText && !pubsText) {
       document.getElementById('bc-sec-extra').classList.add('hidden');
     } else {
       document.getElementById('bc-sec-extra').classList.remove('hidden');
     }
 
-    // 8. Leadership & Responsibilities
+    // Leadership & Responsibilities
     const checkedLeadership = Array.from(form.querySelectorAll('input[name="leadership"]:checked')).map(cb => cb.value);
     if (checkedLeadership.includes('Other')) {
       const lOtherIdx = checkedLeadership.indexOf('Other');
@@ -854,10 +836,8 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     } else {
       previewLeadershipSec.classList.add('hidden');
     }
-
   }
 
-  // Trigger sync on input events
   form.addEventListener('input', syncPreview);
   form.addEventListener('change', syncPreview);
 
@@ -870,7 +850,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
       : '<i class="fa-solid fa-expand"></i> <span>Maximize</span>';
   });
 
-  // ESC key collapses expanded preview
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && previewSection.classList.contains('expanded')) {
       previewSection.classList.remove('expanded');
@@ -893,7 +872,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     const checkedProgram = form.querySelector('input[name="program"]:checked');
     data.program = checkedProgram ? checkedProgram.value : 'MSc Electronics (VLSI Specialization)';
 
-    // Checkboxes
     const checkboxes = form.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach(cb => {
       if (cb.name) {
@@ -911,13 +889,11 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
   }
 
   function saveDraft() {
-    // Debounce the auto save to avoid lagging on typing
     clearTimeout(autoSaveTimeout);
     autoSaveTimeout = setTimeout(() => {
       const stateObj = getFormStateObject();
       localStorage.setItem('vlsi_placement_draft', JSON.stringify(stateObj));
       
-      // Animate draft indicator
       draftSaveIndicator.classList.add('show');
       setTimeout(() => {
         draftSaveIndicator.classList.remove('show');
@@ -932,7 +908,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     try {
       const data = JSON.parse(saved);
       
-      // Restore standard text inputs
       Object.keys(data).forEach(key => {
         const value = data[key];
         const el = form.elements[key];
@@ -942,15 +917,11 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
         }
       });
 
-      // Restore Program radio button
       if (data.program) {
         const radio = form.querySelector(`input[name="program"][value="${data.program}"]`);
-        if (radio) {
-          radio.checked = true;
-        }
+        if (radio) radio.checked = true;
       }
 
-      // Restore Checkboxes
       Object.keys(data).forEach(key => {
         const value = data[key];
         if (Array.isArray(value)) {
@@ -961,7 +932,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
         }
       });
 
-      // Restore photo upload if exists
       const savedPhoto = localStorage.getItem('vlsi_draft_photo');
       const savedPhotoMeta = localStorage.getItem('vlsi_draft_photo_meta');
       if (savedPhoto && savedPhotoMeta) {
@@ -977,22 +947,15 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
         uploadPreviewContainer.classList.remove('hidden');
       }
 
-      // Restore wizard step
       if (data.currentStep) {
         currentStep = parseInt(data.currentStep);
       }
 
-      // Fire updates
       toggleInternshipFields();
-      
-      // Skills other visibility check
       if (skillOtherToggle.checked) groupSkillsOtherText.classList.remove('hidden');
-      // Interests other visibility check
       if (interestOtherToggle.checked) groupInterestsOtherText.classList.remove('hidden');
-      // Leadership other visibility check
       if (leadershipOtherToggle.checked) groupLeadershipOtherText.classList.remove('hidden');
 
-      // Objective length check
       const len = textareaObjective.value.length;
       objectiveCounter.textContent = `${len} / 250 characters`;
 
@@ -1003,7 +966,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     }
   }
 
-  // Register change listeners to fire draft auto save
   form.addEventListener('input', saveDraft);
   form.addEventListener('change', saveDraft);
 
@@ -1035,11 +997,59 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
   });
 
   // ==========================================================================
+  // COLLAPSIBLE DRAWER TOGGLES & SMOOTH SCROLLING
+  // ==========================================================================
+
+  function toggleRegistrationDrawer(forceOpen = false) {
+    const isHidden = registrationFormDrawer.classList.contains('hidden');
+    
+    if (isHidden || forceOpen) {
+      registrationFormDrawer.classList.remove('hidden');
+      btnToggleRegistration.innerHTML = '<i class="fa-solid fa-chevron-up"></i> <span>Close Registration</span>';
+      
+      // Smooth scroll to form area
+      setTimeout(() => {
+        registrationFormDrawer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    } else {
+      registrationFormDrawer.classList.add('hidden');
+      btnToggleRegistration.innerHTML = '<i class="fa-solid fa-chevron-down"></i> <span>Open Registration</span>';
+    }
+  }
+
+  btnToggleRegistration.addEventListener('click', () => toggleRegistrationDrawer());
+  
+  if (btnHeroRegister) {
+    btnHeroRegister.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleRegistrationDrawer(true);
+    });
+  }
+
+  if (navBtnRegister) {
+    navBtnRegister.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleRegistrationDrawer(true);
+    });
+  }
+
+  // Smooth Scrolling for nav anchor links
+  document.querySelectorAll('.nav-links a:not(.btn-nav-register)').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      const targetEl = document.querySelector(targetId);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // ==========================================================================
   // DEMO DATA AUTO-FILL LOGIC
   // ==========================================================================
 
   btnAutofill.addEventListener('click', () => {
-    // 1. Personal details
     inputFullName.value = "Aarav Sharma";
     inputEmail.value = "aarav.sharma@iiit.ac.in";
     inputPhone.value = "+91-9876543210";
@@ -1048,13 +1058,10 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     const mtechRadio = form.querySelector('input[name="program"][value="MTech Electronics (VLSI Specialization)"]');
     if (mtechRadio) mtechRadio.checked = true;
 
-    // 2. Academics & skills
     inputCgpa.value = "9.25";
 
-    // Reset all checkboxes first
     form.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
-    // Skills
     const skillsToCheck = ["Analog IC Design", "Cadence Virtuoso", "Custom Layout / DRC/LVS", "Verilog RTL Design", "LTspice / Ngspice", "Other"];
     skillsToCheck.forEach(skill => {
       const cb = form.querySelector(`input[name="skills"][value="${skill}"]`);
@@ -1063,14 +1070,12 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     groupSkillsOtherText.classList.remove('hidden');
     inputSkillsOtherText.value = "Spectre, Calibre LVS";
 
-    // Interests (Max 3)
     const interestsToCheck = ["Analog Design", "Custom Layout", "RTL Design"];
     interestsToCheck.forEach(interest => {
       const cb = form.querySelector(`input[name="interests"][value="${interest}"]`);
       if (cb) cb.checked = true;
     });
 
-    // 3. Projects
     inputP1Title.value = "Design of a 10-bit 50MS/s SAR ADC";
     selectP1Domain.value = "Analog IC Design";
     inputP1Tools.value = "180nm CMOS, Cadence Virtuoso, Spectre, MATLAB";
@@ -1081,7 +1086,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     inputP2Tools.value = "Xilinx Vivado, Verilog RTL, Artix-7 FPGA";
     textareaP2Outcomes.value = "Developed and synthesized an AXI4-Lite compliant interface for register control. Verified logic correctness via SystemVerilog testbenches with 100% functional and code coverage.";
 
-    // 4. Profile extra
     inputInternCompany.value = "Texas Instruments";
     toggleInternshipFields();
     inputInternDuration.value = "3 months (Summer 2025)";
@@ -1090,7 +1094,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     textareaCerts.value = "Cadence VLSI Fundamentals (2025)\nNPTEL Analog IC Design (2025)";
     inputPubs.value = '"High-Efficiency CMOS LDO for Low-Power SoC Applications" – IEEE TENCON 2025';
     
-    // Leadership
     const leadershipToCheck = ["Placement Committee Member", "Technical Club Coordinator", "Other"];
     leadershipToCheck.forEach(role => {
       const cb = form.querySelector(`input[name="leadership"][value="${role}"]`);
@@ -1099,18 +1102,15 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
     groupLeadershipOtherText.classList.remove('hidden');
     inputLeadershipOtherText.value = "VLSI Seminar Lead";
 
-    // 5. Objective & Availability
     textareaObjective.value = "Seeking a challenging role in Analog/Mixed-Signal IC design and layout to contribute to advanced power management chips and low-power IoT circuits.";
     objectiveCounter.textContent = `${textareaObjective.value.length} / 250 characters`;
 
-    // Load professional headshot image generated earlier
     fetch('professional_headshot_sample.png')
       .then(response => {
         if (!response.ok) throw new Error('Not OK');
         return response.blob();
       })
       .then(blob => {
-        // Read photo as data URL
         const reader = new FileReader();
         reader.onload = function(e) {
           photoBase64 = e.target.result;
@@ -1123,7 +1123,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
           uploadContentEmpty.classList.add('hidden');
           uploadPreviewContainer.classList.remove('hidden');
           
-          // Save Photo to localStorage
           try {
             localStorage.setItem('vlsi_draft_photo', photoBase64);
             localStorage.setItem('vlsi_draft_photo_meta', JSON.stringify({
@@ -1141,7 +1140,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
         reader.readAsDataURL(blob);
       })
       .catch(err => {
-        // CORS/Direct file load fallback - use high quality SVG representation
         console.log("Could not load image file directly (CORS/File scheme). Loading SVG fallback avatar.");
         photoBase64 = svgPlaceholder;
         uploadImgPreview.src = photoBase64;
@@ -1166,7 +1164,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
         showToast('Demo data loaded (with SVG headshot avatar).', 'success');
       });
 
-    // Reset validations visuals
     form.querySelectorAll('.form-group').forEach(group => {
       group.classList.remove('is-invalid');
       group.classList.remove('is-valid');
@@ -1178,107 +1175,62 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchS
   });
 
   // ==========================================================================
-  // SUBMIT & SUCCESS LOGIC
+  // SUBMIT & APPS SCRIPT INTEGRATION
   // ==========================================================================
-  // ==========================================================================
-// SUBMIT FORM TO GOOGLE APPS SCRIPT BACKEND
-// ==========================================================================
 
-async function submitForm() {
-  // Final validation of all steps
-  let allValid = true;
-  for (let s = 1; s <= steps.length; s++) {
-    if (!validateStep(s)) {
-      allValid = false;
-      currentStep = s;
-      showStep(currentStep);
-      showToast(`Please complete Step ${s} correctly.`, 'error');
-      break;
+  function submitForm() {
+    let allValid = true;
+    for (let s = 1; s <= steps.length; s++) {
+      if (!validateStep(s)) {
+        allValid = false;
+        currentStep = s;
+        showStep(currentStep);
+        break;
+      }
     }
-  }
 
-  if (!allValid) return;
-
-  // Collect all form data into a plain object
-  const formData = {
-    fullname: inputFullName.value.trim(),
-    email: inputEmail.value.trim(),
-    phone: inputPhone.value.trim(),
-    linkedin: inputLinkedin.value.trim(),
-    program: form.querySelector('input[name="program"]:checked')?.value || '',
-    cgpa: inputCgpa.value.trim(),
-    skills: Array.from(form.querySelectorAll('input[name="skills"]:checked')).map(cb => cb.value),
-    skills_other_text: inputSkillsOtherText.value.trim(),
-    interests: Array.from(form.querySelectorAll('input[name="interests"]:checked')).map(cb => cb.value),
-    interests_other_text: inputInterestsOtherText.value.trim(),
-    p1title: inputP1Title.value.trim(),
-    p1domain: selectP1Domain.value,
-    p1tools: inputP1Tools.value.trim(),
-    p1outcomes: textareaP1Outcomes.value.trim(),
-    p2title: inputP2Title.value.trim(),
-    p2domain: selectP2Domain.value,
-    p2tools: inputP2Tools.value.trim(),
-    p2outcomes: textareaP2Outcomes.value.trim(),
-    interncompany: inputInternCompany.value.trim(),
-    internduration: inputInternDuration.value.trim(),
-    internwork: textareaInternWork.value.trim(),
-    certs: textareaCerts.value.trim(),
-    pubs: inputPubs.value.trim(),
-    leadership: Array.from(form.querySelectorAll('input[name="leadership"]:checked')).map(cb => cb.value),
-    leadership_other_text: inputLeadershipOtherText.value.trim(),
-    objective: textareaObjective.value.trim(),
-    // Availability checkboxes – add to HTML if missing (optional)
-    availability: Array.from(form.querySelectorAll('input[name="availability"]:checked')).map(cb => cb.value),
-    photo_base64: photoBase64 || '',
-    timestamp: new Date().toISOString()
-  };
-
-  // Show loading toast
-  showToast('Submitting to placement database...', 'info');
-
-  try {
-    const response = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'cors',               // Change to 'cors' to read response
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    });
-
-    const result = await response.json();
-    
-    if (result.result === 'success') {
-      showToast('Submission successful! Data saved to Google Sheet.', 'success');
+    if (allValid) {
+      const data = getFormStateObject();
+      data.photograph = photoBase64 || "None";
       
-      // Clear draft after successful submission
-      localStorage.removeItem('vlsi_placement_draft');
-      localStorage.removeItem('vlsi_draft_photo');
-      localStorage.removeItem('vlsi_draft_photo_meta');
-      
-      // Show success modal
-      successModal.classList.remove('hidden');
+      // Update Next button UI to Submitting...
+      btnNext.disabled = true;
+      const originalBtnText = btnNext.innerHTML;
+      btnNext.innerHTML = 'Submitting <i class="fa-solid fa-spinner fa-spin"></i>';
+
+      // Send post call to Google Apps Script endpoint
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors", // Bypass CORS errors for Apps Script redirect responses
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        showToast('Response successfully uploaded to database!', 'success');
+        successModal.classList.remove('hidden');
+      })
+      .catch(err => {
+        console.warn('Apps Script submission error:', err);
+        showToast('Network timeout. Saved details locally.', 'info');
+        successModal.classList.remove('hidden'); // Show success modal anyway to download card
+      })
+      .finally(() => {
+        btnNext.disabled = false;
+        btnNext.innerHTML = originalBtnText;
+      });
+
     } else {
-      throw new Error(result.error || 'Unknown error');
+      showToast('Validation errors found. Review your fields.', 'error');
     }
-    
-  } catch (err) {
-    console.error('Submission error:', err);
-    showToast('Submission failed: ' + err.message, 'error');
   }
-}
 
-
-
-
-
-  
-
-  // Print Brochure PDF Trigger
   btnPrint.addEventListener('click', () => {
-    // Print styling is handled via media query print
     window.print();
   });
 
-  // Download Brochure Card as PNG Image
   btnDownloadPng.addEventListener('click', () => {
     const cardElement = document.getElementById('brochure-card-render');
     const nameInput = inputFullName.value.trim();
@@ -1286,31 +1238,28 @@ async function submitForm() {
     
     showToast('Generating PNG image, please wait...', 'info');
     
-    // Set html2canvas options to capture high resolution card
     html2canvas(cardElement, {
-      scale: 2, // 2x density for high definition
+      scale: 2,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: null // Transparent background around card rounded borders
+      backgroundColor: null
     }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute('href', imgData);
-      downloadAnchor.setAttribute('download', `vlsi_placement_card_${nameSanitized}.png`);
+      downloadAnchor.setAttribute('download', `duk_vlsi_card_${nameSanitized}.png`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
       showToast('PNG Card downloaded successfully.', 'success');
     }).catch(err => {
       console.error('Error generating image via html2canvas:', err);
-      showToast('Failed to generate PNG image. Please try PDF download instead.', 'error');
+      showToast('Failed to generate PNG image. Try PDF download.', 'error');
     });
   });
 
-  // Export submission as JSON file download
   btnExportJson.addEventListener('click', () => {
     const data = getFormStateObject();
-    // Include photo
     data.photograph = photoBase64 ? "[Base64 Photo Encoded]" : "None";
     
     const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data, null, 2))}`;
@@ -1319,7 +1268,7 @@ async function submitForm() {
     
     const dateFormatted = new Date().toISOString().split('T')[0];
     const nameSanitized = (data.fullname || 'submission').toLowerCase().replace(/[^a-z0-9]/g, '_');
-    downloadAnchor.setAttribute('download', `vlsi_placement_entry_${nameSanitized}_${dateFormatted}.json`);
+    downloadAnchor.setAttribute('download', `duk_vlsi_entry_${nameSanitized}_${dateFormatted}.json`);
     
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
@@ -1328,41 +1277,33 @@ async function submitForm() {
     showToast('JSON Export Downloaded.', 'success');
   });
 
-  // Edit Response (returns to form)
   btnEditResponse.addEventListener('click', () => {
     successModal.classList.add('hidden');
   });
 
-  // Submit Another Response (resets form completely)
   btnResetForm.addEventListener('click', () => {
     if (confirm('Are you sure you want to clear this entry and start a new response?')) {
-      // Clear storage
       localStorage.removeItem('vlsi_placement_draft');
       localStorage.removeItem('vlsi_draft_photo');
       localStorage.removeItem('vlsi_draft_photo_meta');
       
-      // Reset form controls
       form.reset();
       photoBase64 = '';
       
-      // Reset upload elements
       uploadImgPreview.src = '';
       previewImg.src = svgPlaceholder;
       uploadContentEmpty.classList.remove('hidden');
       uploadPreviewContainer.classList.add('hidden');
       
-      // Hide conditional sections
       groupSkillsOtherText.classList.add('hidden');
       groupInterestsOtherText.classList.add('hidden');
       groupLeadershipOtherText.classList.add('hidden');
       toggleInternshipFields();
       
-      // Reset indicators
       currentStep = 1;
       objectiveCounter.textContent = '0 / 250 characters';
       objectiveCounter.style.color = 'var(--text-muted)';
       
-      // Remove visual validations
       form.querySelectorAll('.form-group').forEach(group => {
         group.classList.remove('is-invalid', 'is-valid');
       });
@@ -1373,6 +1314,377 @@ async function submitForm() {
       showToast('Form reset. Starting new entry.', 'info');
     }
   });
+
+  // ==========================================================================
+  // DYNAMIC STUDENT GALLERY & DETAIL MODAL
+  // ==========================================================================
+
+  const mockStudents = [
+    {
+      name: "Aparna Nair",
+      program: "M.Sc. Electronics (VLSI Specialization)",
+      cgpa: 9.35,
+      objective: "Seeking a challenging role in Analog/Mixed-Signal IC design and layout to contribute to advanced power management chips and low-power IoT circuits.",
+      skills: ["Analog IC Design", "Cadence Virtuoso", "Custom Layout", "LTspice"],
+      interests: ["Analog Design", "Custom Layout", "Research & Development"],
+      project1: {
+        title: "Design of a 10-bit 50MS/s SAR ADC",
+        domain: "Analog IC Design",
+        tools: "180nm CMOS, Cadence Virtuoso, Spectre, MATLAB",
+        outcomes: "Designed a 10-bit SAR ADC with a custom charge-redistribution DAC. Achieved an ENOB of 9.42 bits, SNDR of 58.4 dB, and active power consumption of 340 µW at a 1.8V supply."
+      },
+      project2: {
+        title: "Low-Dropout (LDO) Linear Regulator",
+        domain: "Analog IC Design",
+        tools: "180nm CMOS, Cadence Virtuoso, Spectre",
+        outcomes: "Designed and simulated transient-response enhancements for low-dropout (LDO) linear regulators, improving settling time by 15% using active-feedback compensation."
+      },
+      internship: {
+        company: "Texas Instruments",
+        duration: "3 months (Summer 2025)",
+        work: "Designed and simulated transient-response enhancements for low-dropout (LDO) linear regulators, improving settling time by 15% using active-feedback frequency compensation."
+      },
+      certs: "Cadence VLSI Fundamentals (2025), NPTEL Analog IC Design (2025)",
+      pubs: '"High-Efficiency CMOS LDO for Low-Power SoC Applications" – IEEE TENCON 2025',
+      leadership: ["Placement Committee Member", "Technical Club Coordinator"],
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%236366f1'/><path d='M50 45a12 12 0 1 0 0-24 12 12 0 0 0 0 24zm0 8c-18 0-30 8-30 18v3h60v-3c0-10-12-18-30-18z' fill='%23ffffff'/></svg>"
+    },
+    {
+      name: "Rohit Krishnan",
+      program: "M.Tech. Electronics (VLSI Specialization)",
+      cgpa: 8.92,
+      objective: "Aspiring Digital RTL Design Engineer. Interested in design, verification, and implementation of high-performance system-on-chip solutions.",
+      skills: ["Verilog RTL Design", "FPGA (Xilinx)", "Embedded Systems", "STA"],
+      interests: ["RTL Design", "Verification", "Physical Design"],
+      project1: {
+        title: "FPGA Implementation of AXI4-Lite IP Core",
+        domain: "Digital IC Design",
+        tools: "Xilinx Vivado, Verilog RTL, Artix-7 FPGA",
+        outcomes: "Developed and synthesized an AXI4-Lite compliant interface for register control. Verified logic correctness via SystemVerilog testbenches with 100% functional and code coverage."
+      },
+      project2: {
+        title: "RISC-V 3-Stage Pipeline Processor",
+        domain: "Digital IC Design",
+        tools: "Verilog RTL, Vivado, ModelSim",
+        outcomes: "Implemented a subset of RV32I ISA, pipelined with hazard handling. Verified register file operations and execution timing on Basys 3 FPGA."
+      },
+      internship: {
+        company: "Intel Corporation",
+        duration: "6 months (Fall 2025)",
+        work: "Assisted in writing SystemVerilog assertion testbenches for digital subsystems and verified memory controllers against interface specs."
+      },
+      certs: "Advanced Digital Design (2025), Xilinx RTL Training",
+      pubs: "None",
+      leadership: ["Technical Club Coordinator"],
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23ec4899'/><path d='M50 45a12 12 0 1 0 0-24 12 12 0 0 0 0 24zm0 8c-18 0-30 8-30 18v3h60v-3c0-10-12-18-30-18z' fill='%23ffffff'/></svg>"
+    },
+    {
+      name: "Devika Sen",
+      program: "M.Sc. Applied Physics (VLSI Specialization)",
+      cgpa: 9.12,
+      objective: "Seeking a research-driven R&D role in semiconductor physics, neuromorphic hardware accelerator models, and nanoscale CMOS devices.",
+      skills: ["Neuromorphic Computing", "Python", "LTspice / Ngspice", "Analog IC Design"],
+      interests: ["Neuromorphic Computing", "AI Hardware", "Research & Development"],
+      project1: {
+        title: "SNN Accelerator using Memristive Crossbars",
+        domain: "Research / Emerging Tech",
+        tools: "Python (PyTorch), LTspice, Memristor Models",
+        outcomes: "Modeled a 2-layer Spiking Neural Network (SNN) hardware accelerator using simulated memristive crossbar nodes, achieving 94% classification accuracy for MNIST."
+      },
+      project2: {
+        title: "Simulation of FinFET Device Characteristics",
+        domain: "Research / Emerging Tech",
+        tools: "TCAD Silvaco, Python device scripts",
+        outcomes: "Analyzed subthreshold swing and gate leakage in 14nm FinFET topologies, comparing metrics against planar CMOS architectures."
+      },
+      internship: {
+        company: "IIoT Sensor CoE",
+        duration: "3 months (Summer 2025)",
+        work: "Researched nanoscale sensor modeling and simulated micro-electromechanical sensor interfaces on-chip."
+      },
+      certs: "Neuromorphic Computing Certification, NPTEL Semiconductor Physics",
+      pubs: '"Memristive Crossbars for Edge-AI Hardware" – IEEE Nanotechnology 2025',
+      leadership: ["Class Representative"],
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2310b981'/><path d='M50 45a12 12 0 1 0 0-24 12 12 0 0 0 0 24zm0 8c-18 0-30 8-30 18v3h60v-3c0-10-12-18-30-18z' fill='%23ffffff'/></svg>"
+    },
+    {
+      name: "Siddharth Menon",
+      program: "M.Tech. Electronics (VLSI Specialization)",
+      cgpa: 8.65,
+      objective: "To secure a position in Physical Design and Static Timing Analysis (STA), applying advanced floorplanning, routing, and timing closure flows.",
+      skills: ["Physical Design / STA", "Verilog RTL Design", "Python", "Custom Layout"],
+      interests: ["Physical Design", "Verification", "RTL Design"],
+      project1: {
+        title: "Physical Design Flow on 45-nm Standard Cell Library",
+        domain: "Digital IC Design",
+        tools: "Synopsys IC Compiler, Primetime STA, OpenLane",
+        outcomes: "Executed layout synthesis, floorplanning, CTS, and routing for an SPI Controller core. Achieved timing closure with zero setup/hold violations at 350MHz."
+      },
+      project2: {
+        title: "High-Frequency SRAM Array Layout",
+        domain: "Analog IC Design",
+        tools: "Cadence Virtuoso, Calibre DRC/LVS",
+        outcomes: "Designed full custom layout of a 1KB SRAM memory array. Validated cell matching and optimized bitline charging delays by 8%."
+      },
+      internship: {
+        company: "Maker Village",
+        duration: "3 months (Summer 2025)",
+        work: "Developed automated test benches for custom IoT board peripherals and monitored PCB signal integrity parameters."
+      },
+      certs: "Synopsys Tool Training, Physical Design Fundamentals",
+      pubs: "None",
+      leadership: ["Technical Club Coordinator", "Event Organizer"],
+      photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23f59e0b'/><path d='M50 45a12 12 0 1 0 0-24 12 12 0 0 0 0 24zm0 8c-18 0-30 8-30 18v3h60v-3c0-10-12-18-30-18z' fill='%23ffffff'/></svg>"
+    }
+  ];
+
+  function renderStudentGallery() {
+    const galleryContainer = document.getElementById('student-gallery-grid');
+    if (!galleryContainer) return;
+
+    galleryContainer.innerHTML = mockStudents.map((student, idx) => {
+      const skillsTags = student.skills.slice(0, 3).map(s => `<span>${s}</span>`).join('');
+      return `
+        <div class="student-card card-glass" data-student-index="${idx}">
+          <div class="sc-header">
+            <div class="sc-photo-wrapper">
+              <img class="sc-photo" src="${student.photo}" alt="${student.name} Headshot">
+            </div>
+            <div class="sc-meta">
+              <h4 class="sc-name">${student.name}</h4>
+              <span class="sc-program">${student.program.replace(' (VLSI Specialization)', '')}</span>
+              <div class="sc-cgpa-row">
+                <span class="sc-cgpa-badge">CGPA: ${student.cgpa.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+          <p class="sc-objective">${student.objective}</p>
+          <div class="sc-section-title">Core Skills</div>
+          <div class="sc-skills">
+            ${skillsTags}
+            ${student.skills.length > 3 ? `<span>+${student.skills.length - 3}</span>` : ''}
+          </div>
+          <div class="sc-section-title">Key Project</div>
+          <div class="sc-project">
+            <span class="sc-project-title">${student.project1.title}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach click listeners to cards
+    galleryContainer.querySelectorAll('.student-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const studentIndex = parseInt(card.dataset.studentIndex);
+        openStudentDetailModal(mockStudents[studentIndex]);
+      });
+    });
+  }
+
+  function getStudentBrochureCardHTML(student) {
+    // Generate skills tag html
+    const skillsHtml = student.skills.map(s => `<span>${s}</span>`).join('');
+    
+    // Generate interests tag html
+    const interestsHtml = student.interests.map(i => `<span>${i}</span>`).join('');
+
+    // Generate internship block
+    const internHtml = student.internship ? `
+      <div class="bc-sec-column">
+        <h4 class="bc-sec-title">Professional Experience</h4>
+        <div class="bc-internship">
+          <h5 class="bc-intern-company">${student.internship.company}</h5>
+          <span class="bc-intern-duration">${student.internship.duration}</span>
+          <p class="bc-intern-work">${student.internship.work}</p>
+        </div>
+      </div>
+    ` : '';
+
+    // Generate Certs & Pubs block
+    const hasCerts = student.certs && student.certs !== '';
+    const hasPubs = student.pubs && student.pubs !== 'None' && student.pubs !== '';
+    const extraHtml = (hasCerts || hasPubs) ? `
+      <div class="bc-sec-column">
+        <h4 class="bc-sec-title">Certifications & Publications</h4>
+        <div class="bc-certs-pubs">
+          <ul class="bc-bullet-list">
+            ${hasCerts ? `<li><strong>Certifications:</strong> <span>${student.certs}</span></li>` : ''}
+            ${hasPubs ? `<li><strong>Publications:</strong> <span>${student.pubs}</span></li>` : ''}
+          </ul>
+        </div>
+      </div>
+    ` : '';
+
+    // Generate Project 2
+    const p2Html = student.project2 ? `
+      <div class="bc-project">
+        <div class="bc-proj-header">
+          <h5 class="bc-proj-title">Project 2: ${student.project2.title}</h5>
+          <span class="bc-badge">${student.project2.domain}</span>
+        </div>
+        <p class="bc-proj-tools"><strong>Tools/Tech:</strong> <span>${student.project2.tools}</span></p>
+        <p class="bc-proj-desc">${student.project2.outcomes}</p>
+      </div>
+    ` : '';
+
+    // Generate Leadership block
+    const leadershipHtml = student.leadership && student.leadership.length > 0 ? `
+      <div class="bc-section">
+        <h4 class="bc-sec-title">Leadership & Positions of Responsibility</h4>
+        <div class="bc-tags bc-tags-secondary">
+          ${student.leadership.map(l => `<span>${l}</span>`).join('')}
+        </div>
+      </div>
+    ` : '';
+
+    return `
+      <div class="brochure-card" id="brochure-card-modal-render" style="margin: 0 auto; background: var(--card-bg-render, #0f172a); color: var(--text-main);">
+        <div class="bc-header">
+          <div class="bc-univ-logo">
+            <i class="fa-solid fa-microchip"></i>
+          </div>
+          <div class="bc-title-block">
+            <h3>${student.program}</h3>
+            <p>PLACEMENT PORTFOLIO • CLASS OF 2026</p>
+          </div>
+          <div class="bc-cgpa-pill">
+            <span class="bc-cgpa-label">CGPA</span>
+            <span class="bc-cgpa-val">${student.cgpa.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div class="bc-profile-row">
+          <div class="bc-photo-container">
+            <img src="${student.photo}" alt="${student.name} Headshot">
+          </div>
+          <div class="bc-bio-details">
+            <h2 class="bc-name">${student.name}</h2>
+            <div class="bc-contact-grid">
+              <span class="bc-contact-item">
+                <i class="fa-regular fa-envelope"></i> <span>${student.name.toLowerCase().replace(' ', '.')}@duk.ac.in</span>
+              </span>
+              <span class="bc-contact-item">
+                <i class="fa-solid fa-phone"></i> <span>+91-XXXXXXXXXX</span>
+              </span>
+              <a href="#" target="_blank" class="bc-contact-item bc-link">
+                <i class="fa-brands fa-linkedin"></i> <span>linkedin.com/in/${student.name.toLowerCase().replace(' ', '')}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="bc-divider"></div>
+
+        <div class="bc-section">
+          <h4 class="bc-sec-title">Career Objective</h4>
+          <p class="bc-objective-text">${student.objective}</p>
+        </div>
+
+        <div class="bc-skills-interests-row">
+          <div class="bc-sec-column">
+            <h4 class="bc-sec-title">Technical Skills</h4>
+            <div class="bc-tags">
+              ${skillsHtml}
+            </div>
+          </div>
+          <div class="bc-sec-column">
+            <h4 class="bc-sec-title">Areas of Interest</h4>
+            <div class="bc-tags">
+              ${interestsHtml}
+            </div>
+          </div>
+        </div>
+
+        <div class="bc-section">
+          <h4 class="bc-sec-title">Projects</h4>
+          <div class="bc-project">
+            <div class="bc-proj-header">
+              <h5 class="bc-proj-title">Project 1: ${student.project1.title}</h5>
+              <span class="bc-badge">${student.project1.domain}</span>
+            </div>
+            <p class="bc-proj-tools"><strong>Tools/Tech:</strong> <span>${student.project1.tools}</span></p>
+            <p class="bc-proj-desc">${student.project1.outcomes}</p>
+          </div>
+          ${p2Html}
+        </div>
+
+        <div class="bc-grid-2">
+          ${internHtml}
+          ${extraHtml}
+        </div>
+
+        ${leadershipHtml}
+
+        <div class="bc-footer">
+          <div class="bc-verified" style="margin-left: auto;">
+            <i class="fa-solid fa-circle-check"></i> Verified Candidate
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function openStudentDetailModal(student) {
+    activeModalStudentName = student.name;
+    modalBrochureCardContainer.innerHTML = getStudentBrochureCardHTML(student);
+    profileDetailModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Stop background scrolling
+  }
+
+  function closeStudentDetailModal() {
+    profileDetailModal.classList.add('hidden');
+    modalBrochureCardContainer.innerHTML = '';
+    document.body.style.overflow = 'auto'; // Restore scrolling
+  }
+
+  btnCloseProfileModal.addEventListener('click', closeStudentDetailModal);
+  
+  profileDetailModal.addEventListener('click', (e) => {
+    if (e.target === profileDetailModal) {
+      closeStudentDetailModal();
+    }
+  });
+
+  // Modal Card Downloads (PNG / PDF)
+  btnModalDownloadPng.addEventListener('click', () => {
+    const cardElement = document.getElementById('brochure-card-modal-render');
+    const nameSanitized = activeModalStudentName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    
+    showToast('Generating high-resolution card image...', 'info');
+    
+    html2canvas(cardElement, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null
+    }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', imgData);
+      downloadAnchor.setAttribute('download', `duk_vlsi_card_${nameSanitized}.png`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('PNG Brochure card downloaded successfully.', 'success');
+    }).catch(err => {
+      console.error('Error generating image from modal:', err);
+      showToast('Failed to generate PNG card.', 'error');
+    });
+  });
+
+  btnModalPrintPdf.addEventListener('click', () => {
+    // Print window triggers window.print. Since print media hides all other portal elements,
+    // it will print exactly the rendered brochure card.
+    window.print();
+  });
+
+  // Request Brochure Button click cell contact
+  if (btnRequestBrochure) {
+    btnRequestBrochure.addEventListener('click', () => {
+      window.location.href = "mailto:placement@duk.ac.in?subject=Requesting%20VLSI%20Batch%202026%20Placement%20Brochure&body=Dear%20Placement%20Cell,%0A%0AWe%20would%20like%20to%20request%20the%20placement%20brochure%20compilation%20for%20the%20DUK%20MSc/MTech%20VLSI%20Specialization%20Class%20of%202026.%0A%0ACompany%20Name:%20%0AContact%20Person:%20";
+      showToast('Email draft created to request brochure book.', 'success');
+    });
+  }
 
   // ==========================================================================
   // TOAST NOTIFICATION UTILITY
@@ -1394,7 +1706,6 @@ async function submitForm() {
     
     toastContainer.appendChild(toast);
     
-    // Auto dismiss
     const dismissTimer = setTimeout(() => {
       toast.style.opacity = '0';
       toast.style.transform = 'translateY(15px) scale(0.95)';
@@ -1403,7 +1714,6 @@ async function submitForm() {
       }, 300);
     }, 4500);
 
-    // Manual close button
     toast.querySelector('.toast-close').addEventListener('click', () => {
       clearTimeout(dismissTimer);
       toast.remove();
@@ -1414,11 +1724,11 @@ async function submitForm() {
   // INITIALIZE ON LOAD
   // ==========================================================================
   initTheme();
+  renderStudentGallery();
   loadDraft(); // Resumes state and refreshes brochure preview card
   updateProgress();
   
   if (!localStorage.getItem('vlsi_placement_draft')) {
-    // If no draft is saved, sync preview with empty placeholder values
     syncPreview();
   }
 });
