@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // CONFIGURATION & GLOBAL CONSTANTS
   // ==========================================================================
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-YOUR-SCRIPT-ID/exec";
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHQrvTpqjyaa0RdX7WF7918CsWpnUx58zQVgdwA7GiZsUOZYmvV1jhAKfe49Q3g92P/exec";
   
   // SVG Fallback for professional avatar headshot
   const svgPlaceholder = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231e293b'/><circle cx='50' cy='35' r='18' fill='%23475569'/><path d='M50 58c-15 0-25 7-25 15v5h50v-5c0-8-10-15-25-15z' fill='%23475569'/></svg>";
