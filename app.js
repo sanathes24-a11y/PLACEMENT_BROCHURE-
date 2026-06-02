@@ -1211,6 +1211,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(() => {
         showToast('Response successfully uploaded to database!', 'success');
         successModal.classList.remove('hidden');
+        fetchAllStudents(); // Dynamically update placement widgets without full reload
       })
       .catch(err => {
         console.warn('Apps Script submission error:', err);
@@ -1408,7 +1409,7 @@ document.addEventListener('DOMContentLoaded', () => {
       photo: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2310b981'/><path d='M50 45a12 12 0 1 0 0-24 12 12 0 0 0 0 24zm0 8c-18 0-30 8-30 18v3h60v-3c0-10-12-18-30-18z' fill='%23ffffff'/></svg>"
     },
     {
-      name: "Rohith Menon",
+      name: "Siddharth Menon",
       program: "M.Tech. Electronics (VLSI Specialization)",
       cgpa: 8.65,
       objective: "To secure a position in Physical Design and Static Timing Analysis (STA), applying advanced floorplanning, routing, and timing closure flows.",
@@ -1438,17 +1439,96 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
-  function renderStudentGallery() {
+  // Data normalization function to map raw spreadsheet records or mock data to a unified format
+  function normalizeStudentData(rawRecord) {
+    if (rawRecord.project1 && typeof rawRecord.project1 === 'object') return rawRecord;
+    
+    return {
+      name: rawRecord.fullname || rawRecord.name || "Student",
+      program: rawRecord.program || "MSc Electronics (VLSI Specialization)",
+      cgpa: parseFloat(rawRecord.cgpa) || 0.0,
+      objective: rawRecord.careerobjective || rawRecord.objective || "",
+      skills: Array.isArray(rawRecord.skills) ? rawRecord.skills : (rawRecord.skills ? rawRecord.skills.split(',').map(s => s.trim()) : []),
+      interests: Array.isArray(rawRecord.interests) ? rawRecord.interests : (rawRecord.interests ? rawRecord.interests.split(',').map(i => i.trim()) : []),
+      project1: {
+        title: rawRecord.project1title || (rawRecord.project1 ? rawRecord.project1.title : ""),
+        domain: rawRecord.project1domain || (rawRecord.project1 ? rawRecord.project1.domain : ""),
+        tools: rawRecord.project1tools || (rawRecord.project1 ? rawRecord.project1.tools : ""),
+        outcomes: rawRecord.project1outcomes || (rawRecord.project1 ? rawRecord.project1.outcomes : "")
+      },
+      project2: (rawRecord.project2title || (rawRecord.project2 && rawRecord.project2.title)) ? {
+        title: rawRecord.project2title || rawRecord.project2.title,
+        domain: rawRecord.project2domain || rawRecord.project2.domain || "",
+        tools: rawRecord.project2tools || rawRecord.project2.tools || "",
+        outcomes: rawRecord.project2outcomes || rawRecord.project2.outcomes || ""
+      } : null,
+      internship: (rawRecord.internshipcompany || (rawRecord.internship && rawRecord.internship.company)) ? {
+        company: rawRecord.internshipcompany || rawRecord.internship.company,
+        duration: rawRecord.internshipduration || rawRecord.internship.duration || "",
+        work: rawRecord.internshipwork || rawRecord.internship.work || ""
+      } : null,
+      certs: rawRecord.certifications || rawRecord.certs || "",
+      pubs: rawRecord.publications || rawRecord.pubs || "None",
+      leadership: Array.isArray(rawRecord.leadership) ? rawRecord.leadership : (rawRecord.leadership ? rawRecord.leadership.split(',').map(l => l.trim()) : []),
+      photo: rawRecord.photourl || rawRecord.photo || svgPlaceholder
+    };
+  }
+
+  // Live database fetching function
+  async function fetchAllStudents() {
+    const loader = document.getElementById('gallery-loader');
+    if (loader) loader.classList.remove('hidden');
+    
+    try {
+      const response = await fetch(APPS_SCRIPT_URL);
+      if (!response.ok) throw new Error('API request failed');
+      
+      const rawData = await response.json();
+      if (Array.isArray(rawData) && rawData.length > 0) {
+        students = rawData.map(normalizeStudentData);
+        showToast('Live student records synchronized from database.', 'success');
+      } else {
+        console.warn("Spreadsheet returns empty list. Using offline fallbacks.");
+        students = mockStudents.map(normalizeStudentData);
+      }
+    } catch (err) {
+      console.error("Database connection failed. Falling back to mock data.", err);
+      students = mockStudents.map(normalizeStudentData);
+      showToast('Database connection failed. Displaying cached records.', 'warning');
+    } finally {
+      if (loader) loader.classList.add('hidden');
+      
+      // Update UI components
+      renderStudentGallery(students);
+      updateBatchStats(students);
+      renderSkillsMatrix(students);
+      renderProjectShowcase(students);
+      renderHiringMatrix(students);
+    }
+  }
+
+  // Dynamic gallery renderer
+  function renderStudentGallery(data) {
     const galleryContainer = document.getElementById('student-gallery-grid');
     if (!galleryContainer) return;
 
-    galleryContainer.innerHTML = mockStudents.map((student, idx) => {
+    if (data.length === 0) {
+      galleryContainer.innerHTML = `
+        <div class="card-glass" style="grid-column: 1 / -1; padding: 3rem; text-align: center; color: var(--text-secondary);">
+          <i class="fa-solid fa-users-slash" style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-muted);"></i>
+          <p>No verified students registered yet.</p>
+        </div>
+      `;
+      return;
+    }
+
+    galleryContainer.innerHTML = data.map((student, idx) => {
       const skillsTags = student.skills.slice(0, 3).map(s => `<span>${s}</span>`).join('');
       return `
         <div class="student-card card-glass" data-student-index="${idx}">
           <div class="sc-header">
-            <div class="sc-photo-wrapper">
-              <img class="sc-photo" src="${student.photo}" alt="${student.name} Headshot">
+            <div class="sc-photo-wrapper skeleton">
+              <img class="sc-photo" src="${student.photo}" alt="${student.name} Headshot" onload="this.parentElement.classList.remove('skeleton')">
             </div>
             <div class="sc-meta">
               <h4 class="sc-name">${student.name}</h4>
@@ -1476,10 +1556,214 @@ document.addEventListener('DOMContentLoaded', () => {
     galleryContainer.querySelectorAll('.student-card').forEach(card => {
       card.addEventListener('click', () => {
         const studentIndex = parseInt(card.dataset.studentIndex);
-        openStudentDetailModal(mockStudents[studentIndex]);
+        openStudentDetailModal(data[studentIndex]);
       });
     });
   }
+
+  // Dynamic statistics calculator
+  function updateBatchStats(data) {
+    if (data.length === 0) return;
+    
+    const totalStudentsVal = data.length;
+    const avgCgpaVal = (data.reduce((sum, s) => sum + s.cgpa, 0) / totalStudentsVal).toFixed(2);
+    
+    const internshipCount = data.filter(s => s.internship && s.internship.company.trim() !== '').length;
+    
+    const pubCount = data.filter(s => {
+      if (!s.pubs) return false;
+      const p = s.pubs.trim().toLowerCase();
+      return p !== '' && p !== 'none' && p !== 'none.' && p !== '"none"';
+    }).length;
+    
+    const projectCount = data.reduce((sum, s) => {
+      let cnt = 0;
+      if (s.project1 && s.project1.title.trim() !== '') cnt++;
+      if (s.project2 && s.project2.title.trim() !== '') cnt++;
+      return sum + cnt;
+    }, 0);
+    
+    const leadershipCount = data.filter(s => s.leadership && s.leadership.length > 0).length;
+    
+    const certCount = data.reduce((sum, s) => {
+      if (!s.certs) return sum;
+      const list = s.certs.split(/[,\n]/).map(c => c.trim()).filter(c => c !== '');
+      return sum + list.length;
+    }, 0);
+    
+    // Update Stats in Hero and Highlights
+    const domTotalStudents = document.getElementById('stat-total-students');
+    const domAvgCgpa = document.getElementById('stat-avg-cgpa');
+    const domTotalInternships = document.getElementById('stat-total-internships');
+    const domTotalPubs = document.getElementById('stat-total-publications');
+    
+    if (domTotalStudents) domTotalStudents.textContent = totalStudentsVal;
+    if (domAvgCgpa) domAvgCgpa.textContent = avgCgpaVal;
+    if (domTotalInternships) domTotalInternships.textContent = internshipCount;
+    if (domTotalPubs) domTotalPubs.textContent = pubCount;
+    
+    const hlInternships = document.getElementById('highlight-internships');
+    const hlProjects = document.getElementById('highlight-projects');
+    const hlLeadership = document.getElementById('highlight-leadership');
+    const hlCerts = document.getElementById('highlight-certs');
+    
+    if (hlInternships) hlInternships.textContent = internshipCount;
+    if (hlProjects) hlProjects.textContent = projectCount;
+    if (hlLeadership) hlLeadership.textContent = leadershipCount;
+    if (hlCerts) hlCerts.textContent = certCount;
+  }
+
+  // Dynamic skills distribution list calculator
+  function renderSkillsMatrix(data) {
+    const progressContainer = document.getElementById('skills-matrix-progress');
+    if (!progressContainer) return;
+    
+    if (data.length === 0) {
+      progressContainer.innerHTML = '<p class="loader-text">No skills data available.</p>';
+      return;
+    }
+
+    const coreSkills = [
+      "Analog IC Design",
+      "Cadence Virtuoso",
+      "Custom Layout / DRC/LVS",
+      "Verilog RTL Design",
+      "FPGA (Xilinx/Intel)",
+      "Physical Design / STA",
+      "Embedded Systems (STM32, Arduino)",
+      "Python / C / MATLAB",
+      "LTspice / Ngspice",
+      "Machine Learning / AI Hardware",
+      "Neuromorphic Computing"
+    ];
+    
+    const skillTally = {};
+    coreSkills.forEach(s => skillTally[s] = 0);
+    
+    data.forEach(student => {
+      if (Array.isArray(student.skills)) {
+        student.skills.forEach(s => {
+          coreSkills.forEach(coreSkill => {
+            if (s.toLowerCase().includes(coreSkill.toLowerCase()) || coreSkill.toLowerCase().includes(s.toLowerCase())) {
+              skillTally[coreSkill]++;
+            }
+          });
+        });
+      }
+    });
+    
+    const skillsDistribution = coreSkills.map(skill => {
+      const pct = Math.round((skillTally[skill] / data.length) * 100);
+      return { name: skill, percent: pct };
+    }).sort((a, b) => b.percent - a.percent);
+    
+    progressContainer.innerHTML = skillsDistribution.map(item => `
+      <div class="skill-progress-item">
+        <div class="spi-header"><span>${item.name}</span><span class="spi-percent">${item.percent}%</span></div>
+        <div class="spi-bar-track"><div class="spi-bar-fill" style="width: ${item.percent}%;"></div></div>
+      </div>
+    `).join('');
+  }
+
+  // Dynamic project showcase renderer (picks primary projects from top 6 students by CGPA)
+  function renderProjectShowcase(data) {
+    const gridContainer = document.getElementById('projects-showcase-grid');
+    if (!gridContainer) return;
+    
+    if (data.length === 0) {
+      gridContainer.innerHTML = `
+        <div class="card-glass" style="grid-column: 1 / -1; padding: 3rem; text-align: center; color: var(--text-secondary);">
+          <p>No project data available yet.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const topStudents = [...data]
+      .sort((a, b) => b.cgpa - a.cgpa)
+      .slice(0, 6);
+      
+    gridContainer.innerHTML = topStudents.map(student => {
+      const p = student.project1;
+      return `
+        <div class="project-showcard card-glass">
+          <div class="ps-header">
+            <span class="ps-badge">${p.domain}</span>
+          </div>
+          <h4>${p.title}</h4>
+          <div class="ps-student">
+            <i class="fa-solid fa-user-gear"></i> Built by: <span class="ps-student-name" onclick="window.openStudentModalByName('${student.name}')">${student.name}</span>
+          </div>
+          <div class="ps-divider"></div>
+          <div class="ps-tools">
+             <strong>Tools/Tech:</strong> ${p.tools}
+          </div>
+          <p class="ps-outcomes">${p.outcomes}</p>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Dynamic Role Suitability matching grid table
+  function renderHiringMatrix(data) {
+    const tbody = document.getElementById('hiring-matrix-tbody');
+    if (!tbody) return;
+    
+    if (data.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 2rem;">No candidates available yet.</td>
+        </tr>
+      `;
+      return;
+    }
+    
+    tbody.innerHTML = data.map((student) => {
+      const skillsLower = student.skills.map(s => s.toLowerCase());
+      const interestsLower = student.interests.map(i => i.toLowerCase());
+      
+      const isAnalog = interestsLower.some(i => i.includes('analog') || i.includes('layout')) || 
+                       skillsLower.some(s => s.includes('analog') || s.includes('virtuoso') || s.includes('drc') || s.includes('lvs'));
+                       
+      const isRtl = interestsLower.some(i => i.includes('rtl') || i.includes('verification') || i.includes('digital')) || 
+                    skillsLower.some(s => s.includes('verilog') || s.includes('rtl') || s.includes('fpga') || s.includes('systemverilog') || s.includes('vivado'));
+                    
+      const isPd = interestsLower.some(i => i.includes('physical')) || 
+                   skillsLower.some(s => s.includes('physical') || s.includes('sta') || s.includes('floorplanning') || s.includes('routing') || s.includes('synopsys'));
+                   
+      const isEmbedded = interestsLower.some(i => i.includes('embedded')) || 
+                         skillsLower.some(s => s.includes('embedded') || s.includes('stm32') || s.includes('arduino') || s.includes('mcu') || s.includes('arm'));
+                         
+      const isAi = interestsLower.some(i => i.includes('ai') || i.includes('neuromorphic')) || 
+                   skillsLower.some(s => s.includes('machine learning') || s.includes('ai') || s.includes('neuromorphic') || s.includes('pytorch'));
+                   
+      const badgeYes = '<span class="hm-badge-yes"><i class="fa-solid fa-check"></i></span>';
+      const badgeNo = '<span class="hm-badge-no"><i class="fa-solid fa-minus"></i></span>';
+      
+      return `
+        <tr>
+          <td>
+            <a href="#" class="hm-name" onclick="event.preventDefault(); window.openStudentModalByName('${student.name}')">
+              <i class="fa-solid fa-up-right-from-square" style="font-size: 0.72rem; color: var(--color-primary);"></i> ${student.name}
+            </a>
+          </td>
+          <td><span class="hm-program">${student.program.replace(' Electronics (VLSI Specialization)', '')}</span></td>
+          <td><span class="hm-cgpa">${student.cgpa.toFixed(2)}</span></td>
+          <td style="text-align: center;">${isAnalog ? badgeYes : badgeNo}</td>
+          <td style="text-align: center;">${isRtl ? badgeYes : badgeNo}</td>
+          <td style="text-align: center;">${isPd ? badgeYes : badgeNo}</td>
+          <td style="text-align: center;">${isEmbedded ? badgeYes : badgeNo}</td>
+          <td style="text-align: center;">${isAi ? badgeYes : badgeNo}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Global window function helper to launch modal from project links / suitability rows
+  window.openStudentModalByName = function(name) {
+    const studentObj = students.find(s => s.name === name);
+    if (studentObj) openStudentDetailModal(studentObj);
+  };
 
   function getStudentBrochureCardHTML(student) {
     // Generate skills tag html
@@ -1723,8 +2007,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // INITIALIZE ON LOAD
   // ==========================================================================
+  // Initialize dynamic state students list array
+  let students = [];
+
   initTheme();
-  renderStudentGallery();
+  fetchAllStudents(); // Loads dynamic records and triggers UI rendering onload
   loadDraft(); // Resumes state and refreshes brochure preview card
   updateProgress();
   
