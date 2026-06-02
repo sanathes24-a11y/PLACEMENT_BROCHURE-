@@ -4,6 +4,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // Replace with your Google Apps Script Web App URL
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL1sVjzyqYgchSmGO9tHJuZKOxr1CioPpGEx3wK6mE2ysarovHSz5q2CX2-byIhJqO/exec';
   
   // ==========================================================================
   // DOM ELEMENT REFERENCES
@@ -1177,27 +1180,97 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // SUBMIT & SUCCESS LOGIC
   // ==========================================================================
+  // ==========================================================================
+// SUBMIT FORM TO GOOGLE APPS SCRIPT BACKEND
+// ==========================================================================
 
-  function submitForm() {
-    // Final check
-    let allValid = true;
-    for (let s = 1; s <= steps.length; s++) {
-      if (!validateStep(s)) {
-        allValid = false;
-        currentStep = s;
-        showStep(currentStep);
-        break;
-      }
-    }
-
-    if (allValid) {
-      // Show Success Modal
-      successModal.classList.remove('hidden');
-      showToast('Brochure details submitted successfully!', 'success');
-    } else {
-      showToast('Validation errors found. Review your fields.', 'error');
+async function submitForm() {
+  // Final validation of all steps
+  let allValid = true;
+  for (let s = 1; s <= steps.length; s++) {
+    if (!validateStep(s)) {
+      allValid = false;
+      currentStep = s;
+      showStep(currentStep);
+      showToast(`Please complete Step ${s} correctly.`, 'error');
+      break;
     }
   }
+
+  if (!allValid) return;
+
+  // Collect all form data into a plain object
+  const formData = {
+    fullname: inputFullName.value.trim(),
+    email: inputEmail.value.trim(),
+    phone: inputPhone.value.trim(),
+    linkedin: inputLinkedin.value.trim(),
+    program: form.querySelector('input[name="program"]:checked')?.value || '',
+    cgpa: inputCgpa.value.trim(),
+    skills: Array.from(form.querySelectorAll('input[name="skills"]:checked')).map(cb => cb.value),
+    skills_other_text: inputSkillsOtherText.value.trim(),
+    interests: Array.from(form.querySelectorAll('input[name="interests"]:checked')).map(cb => cb.value),
+    interests_other_text: inputInterestsOtherText.value.trim(),
+    p1title: inputP1Title.value.trim(),
+    p1domain: selectP1Domain.value,
+    p1tools: inputP1Tools.value.trim(),
+    p1outcomes: textareaP1Outcomes.value.trim(),
+    p2title: inputP2Title.value.trim(),
+    p2domain: selectP2Domain.value,
+    p2tools: inputP2Tools.value.trim(),
+    p2outcomes: textareaP2Outcomes.value.trim(),
+    interncompany: inputInternCompany.value.trim(),
+    internduration: inputInternDuration.value.trim(),
+    internwork: textareaInternWork.value.trim(),
+    certs: textareaCerts.value.trim(),
+    pubs: inputPubs.value.trim(),
+    leadership: Array.from(form.querySelectorAll('input[name="leadership"]:checked')).map(cb => cb.value),
+    leadership_other_text: inputLeadershipOtherText.value.trim(),
+    objective: textareaObjective.value.trim(),
+    // Availability checkboxes – add to HTML if missing (optional)
+    availability: Array.from(form.querySelectorAll('input[name="availability"]:checked')).map(cb => cb.value),
+    photo_base64: photoBase64 || '',
+    timestamp: new Date().toISOString()
+  };
+
+  // Show loading toast
+  showToast('Submitting to placement database...', 'info');
+
+  try {
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'cors',               // Change to 'cors' to read response
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    const result = await response.json();
+    
+    if (result.result === 'success') {
+      showToast('Submission successful! Data saved to Google Sheet.', 'success');
+      
+      // Clear draft after successful submission
+      localStorage.removeItem('vlsi_placement_draft');
+      localStorage.removeItem('vlsi_draft_photo');
+      localStorage.removeItem('vlsi_draft_photo_meta');
+      
+      // Show success modal
+      successModal.classList.remove('hidden');
+    } else {
+      throw new Error(result.error || 'Unknown error');
+    }
+    
+  } catch (err) {
+    console.error('Submission error:', err);
+    showToast('Submission failed: ' + err.message, 'error');
+  }
+}
+
+
+
+
+
+  
 
   // Print Brochure PDF Trigger
   btnPrint.addEventListener('click', () => {
